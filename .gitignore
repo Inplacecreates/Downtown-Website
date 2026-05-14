@@ -1,0 +1,33 @@
+# Assets that may include licensed material
+assets/photos/raw/
+assets/fonts/*.otf
+assets/fonts/*.ttf
+assets/fonts/*.woff*
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS and editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Build artifacts (overridden per template below)
+node_modules/
+dist/
+build/
+.next/
+.astro/
+.cache/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Claude scratch
+.claude/scratch/
