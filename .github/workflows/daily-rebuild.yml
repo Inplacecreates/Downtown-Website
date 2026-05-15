@@ -1,0 +1,44 @@
+# Daily rebuild
+#
+# The site's "On the bill" section on the homepage computes today's
+# date plus the next two open nights at build time. Without a daily
+# trigger, the dates freeze at whatever the most recent deploy saw.
+# This workflow pings the Vercel deploy-hook URL once a day so the
+# build refreshes and the dates roll forward.
+#
+# The hook URL is stored as the VERCEL_DEPLOY_HOOK_URL repo secret.
+# To rotate it: delete the deploy hook in Vercel (Project → Settings →
+# Git → Deploy Hooks), create a new one, and re-add the secret via
+# `gh secret set VERCEL_DEPLOY_HOOK_URL --repo Inplacecreates/Downtown-Website`.
+
+name: Daily rebuild
+
+on:
+  schedule:
+    # 00:00 UTC = 03:00 EAT (Nairobi). Overnight in Kenya so the
+    # dates are fresh by the time anyone visits in the morning.
+    - cron: "0 0 * * *"
+  # Manual button in the Actions UI for ad-hoc redeploys without
+  # waiting for the next scheduled tick.
+  workflow_dispatch:
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Vercel rebuild
+        env:
+          HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$HOOK_URL" ]; then
+            echo "::error::VERCEL_DEPLOY_HOOK_URL secret is missing"
+            exit 1
+          fi
+          status=$(curl -s -o /tmp/resp.json -w "%{http_code}" -X POST "$HOOK_URL")
+          echo "Deploy hook response: HTTP $status"
+          if [ "$status" -lt 200 ] || [ "$status" -ge 300 ]; then
+            echo "::error::Deploy hook returned $status"
+            cat /tmp/resp.json
+            exit 1
+          fi
+          echo "::notice::Rebuild triggered. Watch the deploy at https://vercel.com/inplaces-projects/downtown-website"
