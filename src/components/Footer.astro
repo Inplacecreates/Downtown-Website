@@ -1,0 +1,171 @@
+---
+import { getCollection } from "astro:content";
+
+/*
+ * Footer with the brand's signature marquee strip on top.
+ * Marquee animation is pure CSS, defined in global.css. Items are
+ * duplicated for the seamless loop; the duplicate set is aria-hidden
+ * so screen readers do not read every line twice.
+ * The .dark class inverts polarity per DESIGN.md section 3 rule 2.
+ *
+ * The "Find us" block uses the locked microcopy ("Find us where the
+ * music is loud.") and the week breakdown Vin gave during discovery.
+ * Saturday is accented in Bonfire because it is the flagship night.
+ *
+ * Marquee mixes brand statements with the actual programme so the
+ * scrolling strip stays alive as the calendar changes. New JSON in
+ * src/content/programme/ shows up automatically.
+ *
+ * TODO before launch:
+ *   - Replace the maps search URL with the actual Google place link
+ *     once the venue is verified on Maps.
+ *   - Replace the Instagram href with the real handle.
+ *   - Replace hello@downtown.example with the real booking email.
+ */
+
+const programme = (await getCollection("programme")).sort((a, b) =>
+  a.id.localeCompare(b.id),
+);
+
+const programmeMarquee = programme.map((entry) => {
+  const lineup = entry.data.lineup.map((act) => act.name).join(" + ");
+  return `${entry.data.date} · ${lineup}`;
+});
+
+const marqueeItems = [
+  "Outdoor · All weather · Always lit",
+  ...programmeMarquee,
+  "Open Tuesday through Sunday · Monday we sleep",
+];
+
+const hours = [
+  { day: "Tue · Wed · Thu", note: "Open" },
+  { day: "Fri", note: "Open" },
+  { day: "Sat", note: "Doors 8pm", flagship: true },
+  { day: "Sun", note: "Open" },
+  { day: "Mon", note: "Sleeping", quiet: true },
+];
+---
+
+<footer class="dark border-t border-border bg-background text-foreground">
+  <!-- Marquee strip -->
+  <div
+    class="pause-on-hover overflow-hidden border-b border-border py-6"
+    aria-label="Programme highlights"
+  >
+    <div
+      class="flex w-max animate-marquee whitespace-nowrap font-display text-5xl font-black uppercase md:text-7xl"
+    >
+      {marqueeItems.map((item) => <span class="pr-12">{item}</span>)}
+      {
+        marqueeItems.map((item) => (
+          <span class="pr-12" aria-hidden="true">
+            {item}
+          </span>
+        ))
+      }
+    </div>
+  </div>
+
+  <!-- Find us -->
+  <div class="mx-auto max-w-[1440px] px-6 py-16 md:px-12 md:py-24 lg:px-20">
+    <h2
+      class="reveal font-display font-black uppercase tracking-tight text-[clamp(40px,6vw,80px)] leading-[1.0]"
+    >
+      Find us.
+    </h2>
+    <p
+      class="reveal mt-4 max-w-prose font-sans text-lg"
+      style="transition-delay: 100ms"
+    >
+      Find us where the music is loud.
+    </p>
+
+    <div
+      class="reveal mt-16 grid gap-12 md:grid-cols-3 md:gap-12 lg:gap-16"
+      style="transition-delay: 200ms"
+    >
+      <!-- Where -->
+      <section>
+        <h3 class="font-display text-2xl font-black uppercase tracking-tight">
+          Where
+        </h3>
+        <p class="mt-4 font-sans text-base leading-relaxed">
+          Nanyuki, Laikipia County, Kenya.
+        </p>
+        <a
+          href="https://www.google.com/maps/search/Downtown+Nanyuki"
+          target="_blank"
+          rel="noopener"
+          class="mt-4 inline-block font-mono text-sm uppercase tracking-wider transition-colors hover:text-bonfire"
+        >
+          Open in Maps
+          <span aria-hidden="true">→</span>
+        </a>
+      </section>
+
+      <!-- When -->
+      <section>
+        <h3 class="font-display text-2xl font-black uppercase tracking-tight">
+          When
+        </h3>
+        <ul class="mt-4 space-y-2 font-mono text-sm">
+          {
+            hours.map(({ day, note, flagship, quiet }) => (
+              <li
+                class:list={[
+                  "flex items-baseline justify-between gap-6 border-b border-border/30 pb-2 last:border-0 last:pb-0",
+                  flagship && "text-bonfire",
+                  quiet && "text-muted-foreground",
+                ]}
+              >
+                <span class="uppercase tracking-wider">{day}</span>
+                <span class="uppercase tracking-wider">{note}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <!-- Stay close -->
+      <section>
+        <h3 class="font-display text-2xl font-black uppercase tracking-tight">
+          Stay close
+        </h3>
+        <a
+          href="https://instagram.com/"
+          target="_blank"
+          rel="noopener"
+          class="mt-4 inline-block font-mono text-sm uppercase tracking-wider transition-colors hover:text-bonfire"
+        >
+          Instagram
+          <span aria-hidden="true">→</span>
+        </a>
+        <p class="mt-6 font-sans text-sm leading-relaxed text-muted-foreground">
+          Private hire and bookings.
+        </p>
+        <a
+          href="mailto:hello@downtown.example"
+          class="mt-2 inline-block font-mono text-sm uppercase tracking-wider transition-colors hover:text-bonfire"
+        >
+          hello@downtown.example
+          <span aria-hidden="true">→</span>
+        </a>
+      </section>
+    </div>
+  </div>
+
+  <!-- Footer baseline -->
+  <div class="border-t border-border/40">
+    <div
+      class="mx-auto flex max-w-[1440px] items-center justify-between px-6 py-6 md:px-12 lg:px-20"
+    >
+      <p class="font-mono text-xs uppercase tracking-wider text-muted-foreground">
+        Downtown · Nanyuki · 2026
+      </p>
+      <p class="font-mono text-xs uppercase tracking-wider text-muted-foreground">
+        Monday we sleep.
+      </p>
+    </div>
+  </div>
+</footer>

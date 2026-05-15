@@ -1,0 +1,19 @@
+{
+  "name": "DJ 2Face",
+  "discipline": "Amapiano · Afrobeats",
+  "tagline": "Two faces, one room.",
+  "since": "2023",
+  "bio": "DJ 2Face brings amapiano and afrobeats to Friday and Saturday nights. Known for reading the room and switching gear mid-track without anyone noticing. Plays B2B with Slick when the calendar permits and the bonfire is going strong.",
+  "captionHint": "DJ 2Face on the decks",
+  "image": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1600&q=80&fit=crop&auto=format",
+  "offerings": [
+    "Saturday peak-time slots",
+    "Friday residencies",
+    "B2B and tag-team sets",
+    "Private hire DJing"
+  ],
+  "contact": {
+    "instagram": "@dj2face",
+    "email": "2face@downtown.example"
+  }
+}

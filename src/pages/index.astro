@@ -1,0 +1,1063 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ImagePlaceholder from "../components/ImagePlaceholder.astro";
+import HeroHeadline from "../components/HeroHeadline.tsx";
+import { getCollection } from "astro:content";
+
+/*
+ * Homepage. Section order is a journey arc:
+ *   1. Hero (Cream)              urgency, IG CTA, full-bleed hero image
+ *   2. About (Cream)             brand statement + voice paragraph
+ *   3. The space (.dark)         first polarity flip, full-bleed atmosphere
+ *   4. Programme (Cream)         this weekend
+ *   5. Past Saturdays (Cream)    full-bleed image grid, recent flagship nights
+ *   6. In residence (Cream)      creative community with portraits
+ *   7. Make it yours (.dark)     second polarity flip, private hire close
+ *   8. Footer (.dark)            marquee + find us
+ *
+ * Two polarity flips break the page into three movements. Full-bleed
+ * image treatments live in the hero, The space, and Past Saturdays
+ * (image-led sections); contained imagery is for the resident cards
+ * where the image works with structured text.
+ *
+ * The hero h1 is a React island using Motion (Pattern 4 from the
+ * motion-patterns skill: word-by-word rise behind a clip mask). This
+ * is the only React island on the page; CSS handles the rest of
+ * the reveals.
+ *
+ * Unsplash hot-links are dev placeholders; replace with commissioned
+ * photography (see assets/references/PHOTOGRAPHY_SOURCES.md) before
+ * the site ships publicly.
+ */
+
+/*
+ * Programme: dynamic "next three nights" rendering.
+ *
+ * On every render (dev) or build (prod) we look at today's date,
+ * walk forward day-by-day, and gather the next three "open" nights
+ * (Tuesday through Sunday; Mondays are closed and skipped). For
+ * each date we first check the programme content collection by
+ * ISO-date id — if a specific JSON file exists (e.g., for a guest
+ * headliner, a festival night, or any non-default lineup), it
+ * wins. Otherwise the card renders from the weekly default
+ * pattern below. This means the front page never shows stale
+ * dates between content updates.
+ *
+ * For the dates to actually roll on the deployed site (which is
+ * static-generated), the host needs a daily rebuild trigger:
+ *   - Vercel: a cron deploy hook (vercel.json `crons` or a hook
+ *     URL pinged by an external scheduler)
+ *   - Netlify: a scheduled build (netlify.toml + scheduled_function
+ *     or the UI's scheduled builds)
+ * Without that, the build's "today" sticks until the next manual
+ * deploy. The render logic is correct either way; the host config
+ * is what makes it daily.
+ */
+
+type NightLineup = { name: string; slug?: string };
+type NightCard = {
+  date: string;
+  lineup: NightLineup[];
+  info: string;
+  flagship: boolean;
+};
+
+const programmeByDate = new Map(
+  (await getCollection("programme")).map((e) => [e.id, e.data]),
+);
+
+/* Weekly default pattern. Day-of-week keys: 0=Sunday … 6=Saturday.
+   `null` means closed. Saturday is flagship. */
+const weeklyPattern: Record<number, Omit<NightCard, "date"> | null> = {
+  0: {
+    lineup: [{ name: "DJ Schoolboy", slug: "dj-schoolboy" }],
+    info: "Doors 7pm",
+    flagship: false,
+  },
+  1: null,
+  2: {
+    lineup: [{ name: "Open decks" }],
+    info: "Doors 8pm · Free entry to play",
+    flagship: false,
+  },
+  3: {
+    lineup: [{ name: "Dance night" }],
+    info: "Doors 8pm · Wednesday social",
+    flagship: false,
+  },
+  4: {
+    lineup: [{ name: "DJ Slick", slug: "dj-slick" }],
+    info: "Doors 8pm",
+    flagship: false,
+  },
+  5: {
+    lineup: [{ name: "DJ 2Face", slug: "dj-2face" }],
+    info: "Doors 8pm",
+    flagship: false,
+  },
+  6: {
+    lineup: [
+      { name: "DJ Slick", slug: "dj-slick" },
+      { name: "DJ 2Face", slug: "dj-2face" },
+      { name: "DJ Schoolboy", slug: "dj-schoolboy" },
+    ],
+    info: "Doors 8pm · Bonfire from 9",
+    flagship: true,
+  },
+};
+
+const localIso = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+const formatDisplayDate = (d: Date) => {
+  const weekday = d.toLocaleDateString("en-GB", { weekday: "short" });
+  const day = d.getDate();
+  const month = d.toLocaleDateString("en-GB", { month: "short" });
+  return `${weekday} ${day} ${month}`;
+};
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+const programme: NightCard[] = [];
+const cursor = new Date(today);
+for (let safety = 0; programme.length < 3 && safety < 14; safety++) {
+  const override = programmeByDate.get(localIso(cursor));
+  const pattern = weeklyPattern[cursor.getDay()];
+
+  if (override) {
+    programme.push({
+      date: override.date || formatDisplayDate(cursor),
+      lineup: override.lineup,
+      info: override.info,
+      flagship: override.flagship ?? false,
+    });
+  } else if (pattern) {
+    programme.push({
+      date: formatDisplayDate(cursor),
+      lineup: pattern.lineup,
+      info: pattern.info,
+      flagship: pattern.flagship,
+    });
+  }
+  /* else: closed (Monday) — skip without adding */
+
+  cursor.setDate(cursor.getDate() + 1);
+}
+
+const residents = (await getCollection("residents")).sort((a, b) =>
+  a.id.localeCompare(b.id),
+);
+
+const djs = (await getCollection("djs")).sort((a, b) =>
+  a.id.localeCompare(b.id),
+);
+
+/*
+ * The night: a timeline of how a Saturday at Downtown unfolds. Six
+ * steps from sunset to Sunday morning. Alternating image-and-text
+ * layout (Pattern 6 reference: image 6 from Vin's moodboard) puts
+ * each step in its own moment. Last step intentionally has no image
+ * so the close (Sunday, empty floor) reads as a quiet pause.
+ */
+const nightSteps = [
+  {
+    time: "Sunset",
+    title: "The bonfire is lit.",
+    description:
+      "An hour before doors. The fire-keepers stoke a bed of embers. The neon signs blink on. Mt Kenya goes pink at the edges.",
+    caption: "Bonfire at sunset",
+    image:
+      "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=1200&q=80&fit=crop&auto=format",
+  },
+  {
+    time: "8pm · Doors",
+    title: "First in get the best seats.",
+    description:
+      "Regulars take their bonfire spots. The bar is fast in the first hour, slower after. Cover is small, the queue is short.",
+    caption: "Doors at eight",
+    image:
+      "https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=1200&q=80&fit=crop&auto=format",
+  },
+  {
+    time: "9pm · DJ",
+    title: "The room finds its rhythm.",
+    description:
+      "Resident DJ takes over from the playlist. The first dancers move. The bonfire glow takes over from sunset. The lighting drops.",
+    caption: "DJ at the booth",
+    image:
+      "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=1200&q=80&fit=crop&auto=format",
+  },
+  {
+    time: "11pm · Peak",
+    title: "The floor is one organism.",
+    description:
+      "Room full. Headliner if it's a Saturday. The dancers stretch from the booth to the bonfire. Bonoqqo is shooting.",
+    caption: "Peak crowd",
+    image:
+      "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80&fit=crop&auto=format",
+  },
+  {
+    time: "2am · Come down",
+    title: "Slow tracks, slow drinks.",
+    description:
+      "Last call at the bar. The DJ shifts down. The bonfire is still going for whoever wants to stay through it. Some do.",
+    caption: "Late embers",
+    image:
+      "https://images.unsplash.com/photo-1497005367839-6e852de72767?w=1200&q=80&fit=crop&auto=format",
+  },
+  {
+    time: "Sunday morning",
+    title: "Doors close. The fire goes out.",
+    description:
+      "Sweepers and Bonoqqo are still up. The floor is empty. Sunday at seven we open quietly. Monday we sleep until Tuesday.",
+    caption: "Empty floor, morning light",
+    image: "",
+  },
+];
+
+/*
+ * Past nights from src/content/past-nights/. Sorted by ISO-date
+ * filename, most recent first. When Downtown's Instagram is wired in
+ * (see content.config.ts), the same shape arrives from the IG Graph
+ * API and the page renders the latest posts automatically.
+ */
+const pastSaturdays = (await getCollection("pastNights"))
+  .sort((a, b) => b.id.localeCompare(a.id))
+  .map((entry) => entry.data);
+---
+
+<Layout>
+  <!-- Hero -->
+  <section class="border-b border-border">
+    <div
+      class="mx-auto max-w-[1440px] px-6 pt-24 md:px-12 md:pt-32 lg:px-20 lg:pt-40"
+    >
+      <p
+        class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+      >
+        Tonight · Friday · Saturday
+      </p>
+
+      <div class="mt-6">
+        <HeroHeadline client:load />
+      </div>
+
+      <p
+        class="reveal mt-8 max-w-prose font-sans text-lg"
+        style="transition-delay: 200ms"
+      >
+        Open Tuesday through Sunday. Monday we sleep.
+      </p>
+
+      <a
+        href="https://instagram.com/"
+        rel="noopener"
+        target="_blank"
+        class="reveal mt-12 inline-flex items-center gap-3 bg-primary px-6 py-4 font-mono text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-opacity hover:opacity-90"
+        style="transition-delay: 300ms"
+      >
+        Follow on Instagram
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+
+    {/* Full-bleed hero image, outside the container so it edges the viewport */}
+    <div class="reveal mt-16 md:mt-20 lg:mt-24" style="transition-delay: 500ms">
+      <ImagePlaceholder
+        caption="Saturday night, the bonfire, the crowd"
+        aspect="ultrawide"
+        src="https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=1920&q=80&fit=crop&auto=format"
+      />
+    </div>
+  </section>
+
+  <!-- About / brand statement -->
+  <section class="border-b border-border">
+    <div
+      class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20"
+    >
+      <h2 class="sr-only">What Downtown is</h2>
+      <div class="space-y-4">
+        <p
+          class="reveal font-display font-black uppercase tracking-tight text-[clamp(36px,7vw,96px)] leading-[0.95]"
+        >
+          Outdoor.
+        </p>
+        <p
+          class="reveal font-display font-black uppercase tracking-tight text-[clamp(36px,7vw,96px)] leading-[0.95]"
+          style="transition-delay: 100ms"
+        >
+          Six nights of music.
+        </p>
+        <p
+          class="reveal font-display font-black uppercase tracking-tight text-[clamp(36px,7vw,96px)] leading-[0.95]"
+          style="transition-delay: 200ms"
+        >
+          <span class="bg-bonfire px-3 text-ink">Saturday</span> is the one.
+        </p>
+      </div>
+
+      <p
+        class="reveal mt-12 max-w-prose font-sans text-lg leading-relaxed"
+        style="transition-delay: 300ms"
+      >
+        Music six nights a week. Saturday brings the headliners.
+        Sunday brings the come-down. The other nights belong to the
+        house. Monday we sleep.
+      </p>
+    </div>
+  </section>
+
+  <!-- Sounds like -->
+  <section id="sounds-like" class="border-b border-border">
+    <div
+      class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20"
+    >
+      <p
+        class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+      >
+        Sounds like
+      </p>
+      <h2 class="sr-only">What plays at Downtown</h2>
+      <div class="mt-6 space-y-3">
+        <p
+          class="reveal font-display font-black uppercase tracking-tight text-[clamp(32px,6vw,80px)] leading-[1.0]"
+        >
+          Amapiano.
+        </p>
+        <p
+          class="reveal font-display font-black uppercase tracking-tight text-[clamp(32px,6vw,80px)] leading-[1.0]"
+          style="transition-delay: 100ms"
+        >
+          House.
+        </p>
+        <p
+          class="reveal font-display font-black uppercase tracking-tight text-[clamp(32px,6vw,80px)] leading-[1.0]"
+          style="transition-delay: 200ms"
+        >
+          Afrobeats.
+        </p>
+        <p
+          class="reveal font-display font-black uppercase tracking-tight text-[clamp(32px,6vw,80px)] leading-[1.0]"
+          style="transition-delay: 300ms"
+        >
+          <span class="bg-bonfire px-3 text-ink">The classics</span>.
+        </p>
+      </div>
+      <p
+        class="reveal mt-12 max-w-prose font-sans text-lg leading-relaxed"
+        style="transition-delay: 400ms"
+      >
+        Whatever the night asks for. The DJs read the room. Most weeks
+        the bonfire is the soundtrack until midnight.
+      </p>
+
+      {/* Resident DJ discovery: links to each DJ detail page */}
+      <p
+        class="reveal mt-12 font-mono text-sm uppercase tracking-wider text-muted-foreground"
+        style="transition-delay: 500ms"
+      >
+        On the decks
+      </p>
+      <ul
+        class="reveal mt-4 flex flex-wrap gap-x-8 gap-y-3"
+        style="transition-delay: 600ms"
+      >
+        {
+          djs.map((dj) => (
+            <li>
+              <a
+                href={`/djs/${dj.id}`}
+                class="group inline-flex items-baseline gap-2 font-display text-2xl font-black uppercase tracking-tight transition-colors hover:text-bonfire md:text-3xl"
+              >
+                <span transition:name={`dj-${dj.id}-name`}>
+                  {dj.data.name}
+                </span>
+                <span
+                  aria-hidden="true"
+                  class="text-bonfire opacity-0 transition-opacity group-hover:opacity-100"
+                >
+                  →
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- The space (polarity flip: you're inside) -->
+  <section class="dark bg-background text-foreground">
+    <div
+      class="mx-auto max-w-[1440px] px-6 pt-20 md:px-12 md:pt-28 lg:px-20"
+    >
+      <p
+        class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+      >
+        Inside Downtown
+      </p>
+
+      <h2
+        class="reveal mt-6 font-display font-black uppercase tracking-tight text-[clamp(40px,6vw,80px)] leading-[1.0]"
+        style="transition-delay: 100ms"
+      >
+        Bonfire, makuti,<br />
+        <span class="bg-bonfire px-3 text-ink">neon</span>.
+      </h2>
+
+      <p
+        class="reveal mt-8 max-w-prose font-sans text-lg leading-relaxed"
+        style="transition-delay: 200ms"
+      >
+        Outdoor floor under a makuti roof. Concrete underfoot, string
+        lights up. The bonfire goes from nine. The neon comes on when
+        the sun drops. Capacity for a thousand on a good Saturday,
+        two when something special is on.
+      </p>
+    </div>
+
+    {/* Full-bleed 2-up grid */}
+    <div
+      class="reveal mt-16 grid grid-cols-1 md:grid-cols-2 md:mt-20"
+      style="transition-delay: 300ms"
+    >
+      <ImagePlaceholder
+        caption="The bonfire at 10pm"
+        aspect="portrait"
+        src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=1200&q=80&fit=crop&auto=format"
+      />
+      <ImagePlaceholder
+        caption="The floor at peak hour"
+        aspect="portrait"
+        src="https://images.unsplash.com/photo-1574391884720-bbc3740c59d1?w=1200&q=80&fit=crop&auto=format"
+      />
+    </div>
+  </section>
+
+  <!-- The night (journey timeline) -->
+  <section
+    id="the-night"
+    class="dark bg-background text-foreground"
+  >
+    <div
+      class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20"
+    >
+      <p
+        class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+      >
+        The arc
+      </p>
+      <h2
+        class="reveal mt-6 font-display font-black uppercase tracking-tight text-[clamp(40px,6vw,80px)] leading-[1.0]"
+        style="transition-delay: 100ms"
+      >
+        A Saturday at <span class="bg-bonfire px-3 text-ink">Downtown</span>.
+      </h2>
+      <p
+        class="reveal mt-6 max-w-prose font-sans text-lg leading-relaxed"
+        style="transition-delay: 200ms"
+      >
+        From sunset until the fire goes out. The shape of a Saturday,
+        in six moves. Scrub the night from left to right, or tap a
+        moment to jump.
+      </p>
+
+      {/*
+       * Time ruler. Desktop only. Each label is an anchor that
+       * scrolls the horizontal scrubber to the corresponding card.
+       * The currently-most-visible card sets its label active via
+       * the IntersectionObserver script at the end of the section.
+       */}
+      <nav
+        class="reveal hidden mt-14 md:block"
+        aria-label="Jump to a moment in the night"
+        style="transition-delay: 250ms"
+      >
+        <ol class="flex items-stretch">
+          {
+            nightSteps.map((step, i) => (
+              <li class="flex-1">
+                <a
+                  href={`#night-${i}`}
+                  data-night-link={i}
+                  class="night-link block border-t-2 border-border pt-3 font-mono text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:text-bonfire focus-visible:text-bonfire focus-visible:outline-none"
+                >
+                  {step.time}
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
+
+      {/*
+       * Horizontal scrubber (desktop) / vertical stack (mobile).
+       * scroll-snap-type: x mandatory + snap-start aligns each
+       * card's left edge with the container left, so the next card
+       * peeks in from the right as a "more to come" affordance.
+       * Wrapped in a relative container so the left/right edge
+       * gradients can sit on top without affecting layout.
+       * cursor-grab + drag-to-scroll JS lower in this file makes
+       * the scrubber discoverable for mouse users; the time ruler
+       * above shows progress as a stepped fill.
+       */}
+      <div class="relative reveal mt-10 md:mt-12 md:-mx-12 lg:-mx-20" style="transition-delay: 300ms">
+        <div
+          class="night-scrubber md:overflow-x-auto md:overflow-y-hidden md:snap-x md:snap-mandatory md:scroll-smooth"
+          tabindex="0"
+          role="region"
+          aria-label="The Saturday night arc, six moments. Drag or scroll horizontally to move through the evening."
+        >
+          <ol class="flex flex-col gap-12 md:flex-row md:gap-8 md:px-12 md:py-4 lg:px-20">
+            {
+              nightSteps.map((step, i) => (
+                <li
+                  id={`night-${i}`}
+                  class="night-card w-full shrink-0 md:w-[78%] md:snap-start lg:w-[68%]"
+                >
+                  <ImagePlaceholder
+                    caption={step.caption}
+                    aspect="video"
+                    src={step.image || undefined}
+                  />
+                  <p class="mt-6 font-mono text-sm uppercase tracking-wider text-bonfire">
+                    {step.time}
+                  </p>
+                  <h3 class="mt-3 font-display text-3xl font-black uppercase leading-tight tracking-tight md:text-4xl lg:text-5xl">
+                    {step.title}
+                  </h3>
+                  <p class="mt-4 max-w-prose font-sans text-lg leading-relaxed">
+                    {step.description}
+                  </p>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+
+        {/* Edge fade gradients. Pointer-events-none so they don't
+            block dragging. Hidden on mobile (stack, no scroll).
+            The data-edge attribute lets the script toggle their
+            visibility based on scroll position. */}
+        <div
+          class="night-edge-fade pointer-events-none absolute inset-y-0 left-0 z-10 hidden w-20 bg-gradient-to-r from-background to-transparent transition-opacity duration-200 md:block lg:w-32"
+          data-edge="left"
+          aria-hidden="true"
+        />
+        <div
+          class="night-edge-fade pointer-events-none absolute inset-y-0 right-0 z-10 hidden w-20 bg-gradient-to-l from-background to-transparent transition-opacity duration-200 md:block lg:w-32"
+          data-edge="right"
+          aria-hidden="true"
+        />
+      </div>
+    </div>
+  </section>
+
+  <script>
+    /*
+     * Night scrubber affordances. Three behaviours, all keyed off
+     * the same scroll container:
+     *   1. Active ruler segment: which card the user is on. The
+     *      active label is bonfire-coloured; every preceding label
+     *      is marked completed (also bonfire), so the ruler reads
+     *      as a stepped progress bar.
+     *   2. Edge fades: the left fade is hidden until the user
+     *      scrolls right; the right fade is hidden once they reach
+     *      the end. Cheap "more content this way" cue.
+     *   3. Drag-to-scroll: mouse-down inside the scrubber, drag
+     *      left or right, scrollLeft tracks the drag. Touch keeps
+     *      the native scroll because mousedown doesn't fire on
+     *      touch. Snap is disabled while dragging so the scrub is
+     *      smooth, re-engages on release. */
+    const scrubber = document.querySelector<HTMLElement>(".night-scrubber");
+    const cards = document.querySelectorAll<HTMLElement>(".night-card");
+    const links = document.querySelectorAll<HTMLAnchorElement>(".night-link");
+    const fades = document.querySelectorAll<HTMLElement>(".night-edge-fade");
+
+    /* 1. Active + completed states on the time ruler.
+       Bug fix: the observer's callback only receives entries that
+       crossed a threshold THIS tick. Picking "most visible" from
+       just those entries means a card that's barely visible but
+       happened to cross a threshold can be elected over a card
+       that's heavily visible but stable. We track every card's
+       last-seen ratio in a Map and re-pick the max from the full
+       map on every callback. */
+    if (cards.length && links.length && "IntersectionObserver" in window) {
+      const setActive = (idx: number) => {
+        links.forEach((l, i) => {
+          const isActive = i === idx;
+          const isCompleted = i < idx;
+          const lit = isActive || isCompleted;
+          l.classList.toggle("text-bonfire", isActive);
+          l.classList.toggle("text-muted-foreground", !isActive);
+          l.classList.toggle("border-bonfire", lit);
+          l.classList.toggle("border-border", !lit);
+          if (isActive) {
+            l.setAttribute("aria-current", "true");
+          } else {
+            l.removeAttribute("aria-current");
+          }
+        });
+      };
+
+      const ratios = new Map<Element, number>();
+      cards.forEach((c) => ratios.set(c, 0));
+
+      let lastActive = -1;
+      const obs = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            ratios.set(e.target, e.isIntersecting ? e.intersectionRatio : 0);
+          });
+          let topRatio = -1;
+          let mostVisible: Element | null = null;
+          ratios.forEach((ratio, el) => {
+            if (ratio > topRatio) {
+              topRatio = ratio;
+              mostVisible = el;
+            }
+          });
+          if (mostVisible) {
+            const idx = Array.from(cards).indexOf(mostVisible as HTMLElement);
+            if (idx >= 0 && idx !== lastActive) {
+              lastActive = idx;
+              setActive(idx);
+            }
+          }
+        },
+        {
+          root: scrubber,
+          /* Granular thresholds so the callback fires often enough
+             to keep the active state honest as the user scrubs. */
+          threshold: [0, 0.1, 0.25, 0.5, 0.75, 0.9, 1],
+        },
+      );
+      cards.forEach((c) => obs.observe(c));
+    }
+
+    /* 2 & 3. Edge fades + drag-to-scroll. Both live on the
+       scrubber, so guard once. */
+    if (scrubber) {
+      /* Edge fades. Recompute on scroll and resize; toggle
+         opacity rather than display so the transition runs. */
+      const updateFades = () => {
+        const max = scrubber.scrollWidth - scrubber.clientWidth;
+        const left = scrubber.scrollLeft;
+        fades.forEach((f) => {
+          const edge = f.dataset.edge;
+          const showLeft = edge === "left" && left > 8;
+          const showRight = edge === "right" && left < max - 8;
+          f.style.opacity = showLeft || showRight ? "1" : "0";
+        });
+      };
+      scrubber.addEventListener("scroll", updateFades, { passive: true });
+      window.addEventListener("resize", updateFades);
+      updateFades();
+
+      /* Drag-to-scroll. Mouse only; touch keeps native scroll.
+         pointerType filter on the Pointer Events API is the
+         clean way to do this. */
+      let isDragging = false;
+      let startX = 0;
+      let startScroll = 0;
+      scrubber.addEventListener("pointerdown", (e) => {
+        if (e.pointerType !== "mouse") return;
+        isDragging = true;
+        startX = e.pageX;
+        startScroll = scrubber.scrollLeft;
+        scrubber.classList.add("is-dragging");
+        scrubber.setPointerCapture(e.pointerId);
+      });
+      scrubber.addEventListener("pointermove", (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        scrubber.scrollLeft = startScroll - (e.pageX - startX);
+      });
+      const endDrag = (e: PointerEvent) => {
+        if (!isDragging) return;
+        isDragging = false;
+        scrubber.classList.remove("is-dragging");
+        try {
+          scrubber.releasePointerCapture(e.pointerId);
+        } catch {
+          /* releasePointerCapture throws if capture already released */
+        }
+      };
+      scrubber.addEventListener("pointerup", endDrag);
+      scrubber.addEventListener("pointercancel", endDrag);
+    }
+  </script>
+
+  <!-- Programme -->
+  <section id="whats-on" class="border-b border-border">
+    <div
+      class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20"
+    >
+      <p
+        class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+      >
+        This weekend · 15 to 17 May
+      </p>
+
+      <h2
+        class="reveal mt-6 font-display font-black uppercase tracking-tight text-[clamp(40px,6vw,80px)] leading-[1.0]"
+        style="transition-delay: 100ms"
+      >
+        On the bill.
+      </h2>
+
+      <p
+        class="reveal mt-6 max-w-prose font-sans text-lg leading-relaxed"
+        style="transition-delay: 200ms"
+      >
+        Doors at eight Tuesday through Saturday. Seven on Sundays.
+        Cover at the door. The bar is open until late, the kitchen
+        until ten.
+      </p>
+
+      <div class="mt-16 space-y-10">
+        {
+          programme.map((night, i) => (
+            <article
+              class="reveal max-w-2xl"
+              style={`transition-delay: ${300 + i * 100}ms`}
+            >
+              <div class="bg-ink px-6 py-5">
+                <p class="font-display text-3xl font-black uppercase leading-none tracking-tight text-cream md:text-4xl">
+                  {night.date}
+                </p>
+              </div>
+
+              <div class="bg-ink border-t border-cream/15 px-6 py-5">
+                <p class="font-display text-3xl font-black uppercase leading-none tracking-tight text-cream md:text-4xl">
+                  {night.lineup.map((act, idx) => (
+                    <>
+                      {idx > 0 && <span class="text-cream/60"> / </span>}
+                      {act.slug ? (
+                        <a
+                          href={`/djs/${act.slug}`}
+                          class="text-cream transition-colors hover:text-bonfire"
+                        >
+                          {act.name}
+                        </a>
+                      ) : (
+                        <span>{act.name}</span>
+                      )}
+                    </>
+                  ))}
+                </p>
+              </div>
+
+              <div
+                class:list={[
+                  "px-6 py-3",
+                  night.flagship
+                    ? "bg-bonfire"
+                    : "bg-cream border border-t-0 border-concrete/30",
+                ]}
+              >
+                <p
+                  class:list={[
+                    "font-mono text-xs uppercase tracking-wider",
+                    night.flagship ? "text-ink" : "text-concrete",
+                  ]}
+                >
+                  {night.info}
+                </p>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- House (how to show up) -->
+  <section id="house" class="border-b border-border">
+    <div
+      class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20"
+    >
+      <p
+        class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+      >
+        If you're coming
+      </p>
+
+      <h2
+        class="reveal mt-6 font-display font-black uppercase tracking-tight text-[clamp(40px,6vw,80px)] leading-[1.0]"
+        style="transition-delay: 100ms"
+      >
+        Show up. Be <span class="bg-bonfire px-3 text-ink">kind</span>.
+        Bring better friends.
+      </h2>
+
+      <ul class="mt-12 max-w-3xl">
+        {
+          [
+            "Outdoor, all weather. Dress for the bonfire.",
+            "Cover at the door. Cash or card.",
+            "The bouncers know the regulars. The regulars know the rules.",
+            "Anyone makes someone uncomfortable, they leave.",
+          ].map((rule, i) => (
+            <li
+              class="reveal flex items-baseline gap-6 border-t border-border py-5 last:border-b"
+              style={`transition-delay: ${200 + i * 80}ms`}
+            >
+              <span class="font-mono text-xs uppercase tracking-wider text-bonfire">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span class="font-display text-xl font-black uppercase tracking-tight md:text-2xl lg:text-3xl">
+                {rule}
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- Vision cross-link: brief callout pointing to /vision -->
+  <section class="dark border-y border-border bg-background text-foreground">
+    <div
+      class="mx-auto max-w-[1440px] px-6 py-16 md:flex md:items-end md:justify-between md:px-12 md:py-20 lg:px-20"
+    >
+      <div class="max-w-2xl">
+        <p
+          class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+        >
+          Beyond the weekend
+        </p>
+        <h2
+          class="reveal mt-4 font-display font-black uppercase tracking-tight text-[clamp(32px,5vw,64px)] leading-[1.25]"
+          style="transition-delay: 100ms"
+        >
+          A <span class="bg-bonfire box-decoration-clone px-3 text-ink">five-year plan</span> for
+          Nanyuki's creative youth.
+        </h2>
+      </div>
+      <a
+        href="/vision"
+        class="reveal mt-8 inline-flex items-center gap-3 bg-primary px-6 py-4 font-mono text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-opacity hover:opacity-90 md:mt-0"
+        style="transition-delay: 200ms"
+      >
+        Read the vision
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Past Saturdays as a film strip -->
+  <section class="dark bg-background text-foreground">
+    <div
+      class="mx-auto max-w-[1440px] px-6 pt-20 md:px-12 md:pt-28 lg:px-20"
+    >
+      <p
+        class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+      >
+        Recent nights
+      </p>
+
+      <h2
+        class="reveal mt-6 font-display font-black uppercase tracking-tight text-[clamp(40px,6vw,80px)] leading-[1.0]"
+        style="transition-delay: 100ms"
+      >
+        On the <span class="bg-bonfire px-3 text-ink">reel</span>.
+      </h2>
+
+      <p
+        class="reveal mt-6 max-w-prose font-sans text-lg leading-relaxed"
+        style="transition-delay: 200ms"
+      >
+        Three frames from the recent run. The film keeps rolling.
+        Full archive lives on Instagram.
+      </p>
+    </div>
+
+    {/* Film strip, full-bleed on its dark Ink stock. Sprocket-hole
+        columns flank the centred frames; brand labels top and
+        bottom give it canister feel. */}
+    <div class="reveal mt-16 md:mt-20" style="transition-delay: 300ms">
+      {/* Top brand label */}
+      <p class="mx-auto max-w-[1100px] px-6 pb-3 font-mono text-xs uppercase tracking-[0.3em] text-bonfire">
+        Downtown Film 200 · Sat Nights · Expose 36 · Push +2
+      </p>
+
+      {/* The reel */}
+      <div class="relative mx-auto max-w-[1100px] border-y-[3px] border-cream/95 bg-cream/95 py-4">
+        {/* Sprocket holes, left column */}
+        <div
+          class="pointer-events-none absolute bottom-0 left-2 top-0 flex flex-col items-center justify-around py-3"
+          aria-hidden="true"
+        >
+          {
+            Array.from({ length: 28 }).map(() => (
+              <span class="block h-3 w-6 bg-ink/90 md:h-4 md:w-7" />
+            ))
+          }
+        </div>
+
+        {/* Sprocket holes, right column */}
+        <div
+          class="pointer-events-none absolute bottom-0 right-2 top-0 flex flex-col items-center justify-around py-3"
+          aria-hidden="true"
+        >
+          {
+            Array.from({ length: 28 }).map(() => (
+              <span class="block h-3 w-6 bg-ink/90 md:h-4 md:w-7" />
+            ))
+          }
+        </div>
+
+        {/* Frames stacked vertically */}
+        <div class="relative space-y-3 px-14 md:space-y-4 md:px-20 lg:px-24">
+          {
+            pastSaturdays.map((night, i) => (
+              <figure class="relative">
+                <div class="aspect-video overflow-hidden border-2 border-ink bg-ink">
+                  <img
+                    src={night.src}
+                    alt={night.caption}
+                    loading="lazy"
+                    decoding="async"
+                    class="h-full w-full object-cover"
+                  />
+                </div>
+                <figcaption class="mt-2 flex items-baseline justify-between gap-4 font-mono text-[10px] uppercase tracking-[0.25em] text-ink md:text-xs">
+                  <span>
+                    Frame {String(i + 1).padStart(3, "0")}
+                  </span>
+                  <span class="text-bonfire">{night.date}</span>
+                  <span class="text-ink/60">{night.caption}</span>
+                </figcaption>
+              </figure>
+            ))
+          }
+        </div>
+      </div>
+
+      {/* Bottom brand label */}
+      <p class="mx-auto max-w-[1100px] px-6 pt-3 font-mono text-xs uppercase tracking-[0.3em] text-bonfire">
+        Iso 200 · Daylight · Made for the bonfire
+      </p>
+    </div>
+  </section>
+
+  <!-- In residence (creative community) -->
+  <section id="in-residence">
+    <div
+      class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20"
+    >
+      <p
+        class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+      >
+        Downtown is home to
+      </p>
+
+      <h2
+        class="reveal mt-6 font-display font-black uppercase tracking-tight text-[clamp(40px,6vw,80px)] leading-[1.0]"
+        style="transition-delay: 100ms"
+      >
+        In residence.
+      </h2>
+
+      <p
+        class="reveal mt-6 max-w-prose font-sans text-lg leading-relaxed"
+        style="transition-delay: 200ms"
+      >
+        A fashion house, a workshop, a photo studio, a tattoo room.
+        Built into the place, not bolted on.
+      </p>
+
+      <p
+        class="reveal mt-4 max-w-prose font-sans text-lg leading-relaxed"
+        style="transition-delay: 300ms"
+      >
+        Residents make work at Downtown year-round. They show on the
+        big nights, sell from the bar, run workshops on the quiet
+        ones. The roster shifts. Ask at the door if you want to meet
+        someone.
+      </p>
+
+      <div class="mt-16 grid gap-8 md:grid-cols-2 lg:gap-12">
+        {
+          residents.map((resident, i) => (
+            <a
+              href={`/residents/${resident.id}`}
+              class="reveal group block transition-[transform,opacity,box-shadow] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:opacity-95"
+              style={`transition-delay: ${400 + i * 100}ms`}
+              aria-label={`Open ${resident.data.name} profile`}
+            >
+              <ImagePlaceholder
+                caption={resident.data.captionHint}
+                aspect="square"
+                src={resident.data.image}
+                transition:name={`resident-${resident.id}-image`}
+              />
+
+              <div class="bg-ink px-6 py-5 flex items-baseline gap-4">
+                <span
+                  class="font-display text-3xl font-black uppercase leading-none tracking-tight text-bonfire md:text-4xl"
+                  aria-hidden="true"
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <p
+                  class="font-display text-2xl font-black uppercase leading-none tracking-tight text-cream md:text-3xl"
+                  transition:name={`resident-${resident.id}-name`}
+                >
+                  {resident.data.name}
+                </p>
+              </div>
+
+              <div class="bg-cream border border-t-0 border-concrete/30 px-6 py-3">
+                <p class="font-mono text-xs uppercase tracking-wider text-concrete transition-colors group-hover:text-bonfire">
+                  {resident.data.discipline}
+                  <span aria-hidden="true" class="ml-1">→</span>
+                </p>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Make it yours (private hire) -->
+  <section id="private-hire" class="dark bg-background text-foreground">
+    <div
+      class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20"
+    >
+      <p
+        class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+      >
+        Private hire
+      </p>
+
+      <h2
+        class="reveal mt-6 font-display font-black uppercase tracking-tight text-[clamp(40px,6vw,80px)] leading-[1.0]"
+        style="transition-delay: 100ms"
+      >
+        Make it yours.
+      </h2>
+
+      <p
+        class="reveal mt-8 max-w-prose font-sans text-lg leading-relaxed"
+        style="transition-delay: 200ms"
+      >
+        The space hosts birthdays, launches, weddings, label parties,
+        and the occasional bad idea. Tell us what you're imagining;
+        we'll tell you what's possible.
+      </p>
+
+      <a
+        href="mailto:hello@downtown.example"
+        class="reveal mt-12 inline-flex items-center gap-3 bg-primary px-6 py-4 font-mono text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-opacity hover:opacity-90"
+        style="transition-delay: 300ms"
+      >
+        Tell us what you're imagining
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </section>
+</Layout>

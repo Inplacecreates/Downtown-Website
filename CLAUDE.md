@@ -1,95 +1,165 @@
 # downtown-website
 
-A digital home for Downtown, the Nanyuki venue hosting the town's creative community across music, art, and events
+A digital home for Downtown, the Nanyuki venue hosting the town's
+creative community across music, art, and events.
 
 **Client:** Vin
 **Started:** 2026-05-14
-**Stack:** TBD (to be decided in first session)
+**Stack locked:** 2026-05-14
 
 This file conditions Claude Code's behaviour on this project. The
-global `~/.claude/CLAUDE.md` rules also apply.
+global `~/.claude/CLAUDE.md` rules also apply on top of everything
+here.
 
-## Discovery mode
+## Stack
 
-This project has not yet committed to a tech stack. Before generating
-any code, read `docs/STACK.md` and walk the user through the stack
-decision. Do not assume defaults. Do not pick what is fashionable.
-Pick what fits the constraints.
+- **Framework:** Astro 5 (TypeScript strict).
+- **Styling:** Tailwind v4 via `@tailwindcss/vite`, CSS-first config
+  in `src/styles/global.css`. Brand tokens live in `:root`, `.dark`,
+  and the `@theme inline` block.
+- **UI primitives:** shadcn New York. Config is in `components.json`;
+  no components installed yet. Add via `npx shadcn@latest add <name>`
+  or the shadcn MCP. Tokens map to brand colours, so any component
+  added will pick up Bonfire as primary automatically.
+- **Motion:** Motion (formerly Framer Motion). `MotionProvider` is
+  set up at `src/components/motion/MotionProvider.tsx` but is unused
+  so far. Reveals are CSS keyframes plus IntersectionObserver in
+  Layout.astro; reach for Motion only when JS state genuinely earns
+  its bundle (interactive hover state, layout animation, ticketing
+  forms). For continuous decorations like the marquee, use CSS.
+- **Fonts:** Big Shoulders Display 700+900, IBM Plex Sans 400+500+600,
+  IBM Plex Mono 400+500. WOFF2 in `assets/fonts/` (Latin subset,
+  OFL-licensed, committed deliberately). Served at `/fonts/` via
+  symlink from `public/fonts/`.
+- **Content:** the programme is an Astro content collection at
+  `src/content/programme/`, one JSON file per night. Schema in
+  `src/content.config.ts`. Filenames are ISO dates so they sort
+  chronologically.
 
-## First-session script
+## File map
 
-When the user starts the first Claude Code session, your job is:
+```
+docs/
+  DESIGN.md          Brand system, single source of truth
+  STACK.md           Stack decision record
+assets/
+  logos/             JPG of original wordmark
+  fonts/             WOFF2 + fonts.css (the canonical font location)
+  references/        MOODBOARD, PHOTOGRAPHY_SOURCES, CUSTOM_ASSETS
+src/
+  components/        Header, Footer, Wordmark
+  components/motion/ MotionProvider (LazyMotion wrapper)
+  content/programme/ One JSON file per night
+  content.config.ts  Content collection schema
+  layouts/Layout.astro   HTML shell, meta, fonts, JSON-LD, scroll-reveal scripts
+  pages/             index.astro, 404.astro, sitemap.xml.ts
+  styles/global.css  Tailwind import, brand theme, scroll-reveal CSS, marquee CSS
+  lib/utils.ts       shadcn cn() helper
+public/
+  fonts/             Symlink into ../assets/fonts/ (single source of truth)
+  favicon.svg        Reduced wordmark
+  robots.txt
+```
 
-1. **Read `docs/STACK.md` in full.**
-2. **Ask any questions where answers are missing or ambiguous.** Do
-   not guess at audience, scale, hosting constraints, or budget.
-3. **Propose 2 or 3 stack options** with honest trade-offs. For each,
-   say what makes it the right call and what makes it the wrong call.
-4. **Recommend one**, with a one-line reason. Make the recommendation
-   defensible, not hedged.
-5. **Wait for the user to confirm or push back.** Do not start coding.
-6. **Once the stack is locked,** update `docs/STACK.md` with the
-   decision and the reasoning. Also update this CLAUDE.md file to
-   replace the discovery section with the chosen stack's conventions.
+## Common tasks
 
-## Stack consideration principles
+**Add a programme night.** Drop a JSON file in
+`src/content/programme/` named `YYYY-MM-DD.json` with `date`,
+`lineup`, `info`, and optionally `flagship`. Dev server hot-reloads.
 
-When recommending a stack, weigh these in order:
+**Change copy.** The voice library is locked in `docs/DESIGN.md`
+section 8. Microcopy labels (Follow on Instagram, What's on, Find
+us, Make it yours, Not on the bill) are also locked. Do not invent
+new labels for existing buttons or states without updating
+DESIGN.md first.
 
-1. **Fit for purpose.** What does this project actually do? A
-   content-driven marketing site is not a real-time collaborative
-   app. The tools should match the work.
-2. **Operational reality.** Who maintains this in six months? What
-   hosting is available? What is the team's existing comfort?
-3. **Time to first value.** How quickly can a useful version ship?
-   Faster is usually better unless the project demands otherwise.
-4. **Honest assessment of hype.** Just because something trends on
-   Twitter does not mean it belongs in production. Justify novel
-   choices on their merits.
+**Update a brand token.** Tokens are in `src/styles/global.css`,
+under `:root`, `.dark`, and `@theme inline`. Brand colours: Ink,
+Cream, Bonfire, Concrete, Smoke, Moonlight. Adding a second accent
+is a brand violation (DESIGN.md section 3 rule 1).
 
-## Defaults to consider, not constraints to obey
+**Add a shadcn component.** `npx shadcn@latest add button` (or any
+component) drops the file into `src/components/ui/`. It will pick
+up the brand tokens via the CSS variables. New York style is
+already configured.
 
-Kelvin's working preferences as of 2026:
+## Troubleshooting
 
-- **Backend:** Go is the default for new backends.
-- **Marketing or portfolio sites:** Astro is the default.
-- **App-style frontends with auth and state:** Next.js 15.
-- **Mobile:** discuss case by case, no default.
-- **Database:** Postgres unless there's a reason otherwise.
+**Content collection silently drops entries.** If a Zod schema in
+`src/content.config.ts` is changed and the matching JSON files are
+migrated one at a time, the dev server will throw schema-validation
+errors during the windows where schema and JSON disagree. Even
+after every JSON is fixed, the content cache at
+`.astro/data-store.json` can hang onto the failed entries, so
+`getCollection` returns a partial list with no error in the log on
+subsequent requests. Symptom: a page renders only some of the
+items it should, with no console error and a clean 200 response.
+Fix: stop the dev server, `rm -rf .astro/`, restart with
+`npm run dev`. Hit during the programme `lineup` schema migration
+on 2026-05-14; worth doing schema changes and JSON migrations as
+one atomic edit when possible.
 
-These are starting points. If the project's requirements point
-elsewhere (Phoenix LiveView for a niche realtime app, SvelteKit for
-a particularly motion-heavy site, Flutter for cross-platform mobile,
-Rails for a CRUD-heavy SaaS where speed of build matters more than
-runtime speed), recommend that instead and explain why.
+## Engineering rules with brand implications
 
-## What to never do during discovery
+- **Bonfire as text on Ink only.** On Cream backgrounds, Bonfire
+  is always a fill (`bg-bonfire` with `text-ink` inside), never a
+  text colour. Bonfire text on Cream is 2.5:1 (fails WCAG AA at
+  any size); Bonfire fill with Ink text is 8.2:1 (passes AAA).
+  DESIGN.md section 3 rule 3.
+- **No em dashes.** Anywhere. In code comments, in copy, in commit
+  messages, in this file. Use commas, semicolons, parentheses, or
+  two sentences. The `no-em-dashes` skill is loaded automatically.
+- **The marquee is the brand's heartbeat.** A horizontal type
+  strip scrolls continuously, pauses on hover, freezes for
+  reduced motion. Pure CSS at `.animate-marquee` in `global.css`.
+  Do not rebuild this in JS.
+- **The wordmark is two stacked bars with rotational symmetry.**
+  Never crop one bar; never substitute with text where the SVG
+  fits. Current SVG at `src/components/Wordmark.astro` is a
+  working approximation; the designer SVG is still an outstanding
+  ask in `assets/references/CUSTOM_ASSETS.md`.
+- **Polarity inversion is section-level, not user-toggled.** Apply
+  the `.dark` class to any section that should flip from
+  Cream-on-Ink (light) to Ink-on-Cream (dark). There is no light or
+  dark user toggle.
+- **The programme card is locked to Ink + Cream regardless of
+  section polarity.** The card echoes the wordmark's two-bar
+  structure and is a brand artifact, not a styled component. Do
+  not let it follow section polarity.
 
-- Pick the stack silently and start coding.
-- Pick a stack the user has not heard of without explaining it.
-- Pick based on what's popular this quarter rather than what fits.
-- Skip the operational question (who hosts this, who maintains it).
-- Use em dashes. (Yes, still applies even in stack discussions.)
+## Local dev
 
-## Once a stack is chosen
+```bash
+npm run dev      # http://localhost:4321
+npm run build
+npm run preview
+```
 
-When the user confirms a stack, do all of these in one update:
+## Pre-launch placeholders
 
-1. Replace this CLAUDE.md content with conventions appropriate to
-   the chosen stack. Reference `~/.inplace-kit/templates/` for the
-   shape of a good stack-specific CLAUDE.md.
-2. Update `docs/STACK.md` with the locked decision, the date, and
-   the reasoning. This is the historical record.
-3. If the stack is Astro or Next.js, copy `~/.inplace-kit/templates/
-   shared/DESIGN.md` into `docs/DESIGN.md` so the user can fill in
-   the brand brief.
-4. If the stack is Go, add a `docs/ARCHITECTURE.md` with the
-   layering pattern.
-5. If the stack matches a project type in the scaffold (Astro, Next,
-   Go), add the relevant project-scoped skills as symlinks. Example
-   for Astro:
+These all use placeholder values; find-and-replace before going
+live:
 
-   ```bash
-   ln -s ~/.inplace-kit/skills/motion-intent-check \
-         .claude/skills/motion-intent-check
-   ```
+- `SITE_ORIGIN = "https://downtown.example"` appears in
+  `src/layouts/Layout.astro` and `src/pages/sitemap.xml.ts`.
+- The `Sitemap:` line in `public/robots.txt`.
+- `https://instagram.com/` href in `src/pages/index.astro` (hero
+  CTA) and `src/components/Footer.astro` (Find us).
+- `hello@downtown.example` email in `src/components/Footer.astro`.
+- Google Maps URL in `src/components/Footer.astro` (currently a
+  search for "Downtown Nanyuki"; replace with the venue's place
+  link once it is on Maps).
+- The Bonfire colour `#FF6A1F`, if the venue's actual neon
+  fixtures are radically different (DESIGN.md section 3 working
+  assumption).
+- The Sat 16 May programme date and lineup, every Saturday, by
+  editing `src/content/programme/`.
+
+## What still needs a designer
+
+See `assets/references/CUSTOM_ASSETS.md` for the full list. The
+three must-haves before public sharing are: the production SVG of
+the existing wordmark, a real favicon set (the current SVG is
+working but a designer should refine it), and a designed 1200x630
+OG share image. The weekly flyer template and the motion-wordmark
+follow once those land.

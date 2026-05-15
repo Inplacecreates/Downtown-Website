@@ -1,0 +1,16 @@
+{
+  "name": "Bonfire tee",
+  "category": "T-shirt",
+  "tagline": "House tee. Heavyweight, screen-printed in Nairobi.",
+  "description": "240gsm combed cotton, boxy cut, screen-printed at a small Nairobi press. Bonfire-orange logotype on the chest, full back print of the Downtown wordmark. Pre-shrunk.",
+  "price": "[KES 2,400]",
+  "pillar": "music",
+  "variants": [
+    { "label": "Size", "options": ["S", "M", "L", "XL", "XXL"] },
+    { "label": "Colour", "options": ["Ink black", "Cream", "Bonfire orange"] }
+  ],
+  "imageCaption": "Bonfire tee, ink black, chest logotype",
+  "image": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=1200&q=80&fit=crop&auto=format",
+  "inStock": true,
+  "featured": true
+}

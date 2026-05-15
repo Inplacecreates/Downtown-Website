@@ -1,0 +1,165 @@
+---
+import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "Downtown, Nanyuki",
+  description = "Downtown is a creative venue in Nanyuki hosting music, art, and events.",
+} = Astro.props;
+
+/*
+ * Canonical URL. Astro.url gives the current request URL, but for
+ * production the canonical should be the deployed domain. Hardcoding
+ * a placeholder until the real domain is set; replace before launch.
+ */
+const SITE_ORIGIN = "https://downtown.example";
+const canonical = new URL(Astro.url.pathname, SITE_ORIGIN).toString();
+
+/*
+ * JSON-LD LocalBusiness, NightClub subtype. Surfaces hours and
+ * location to search engines so they can build knowledge panels.
+ * Coordinates are approximate Nanyuki town centre and should be
+ * replaced with the venue's exact geo once known.
+ */
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "NightClub",
+  name: "Downtown",
+  description: description,
+  url: SITE_ORIGIN,
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Nanyuki",
+    addressRegion: "Laikipia County",
+    addressCountry: "KE",
+  },
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: 0.0167,
+    longitude: 37.0731,
+  },
+  openingHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: [
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+      ],
+      opens: "20:00",
+      closes: "02:00",
+    },
+  ],
+  sameAs: ["https://instagram.com/"],
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    {/* Open Graph */}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Downtown" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    {/* TODO: og:image once a designed share PNG exists (1200x630). */}
+
+    {/* Twitter */}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    {/* Identity + chrome */}
+    <meta name="theme-color" content="#0e0c0a" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    {/* Fonts */}
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/big-shoulders-display-900.woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="/fonts/fonts.css" />
+
+    {/* Structured data for search engines */}
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(structuredData)}
+    />
+
+    <script is:inline>
+      // Mark JS as available so .reveal styles activate. Runs before
+      // body paint, so no flash of pre-reveal content.
+      document.documentElement.classList.add("js");
+    </script>
+
+    {/* View Transitions for cross-page fades and shared-element morphs. */}
+    <ClientRouter />
+  </head>
+  <body>
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-foreground focus:px-4 focus:py-2 focus:font-mono focus:text-sm focus:font-semibold focus:uppercase focus:tracking-wider focus:text-background"
+    >
+      Skip to main content
+    </a>
+
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <script is:inline>
+      // Scroll-reveal observer. Adds .revealed class when each
+      // .reveal element enters the viewport, one-shot per element.
+      // Bound to astro:page-load so it re-runs after every view
+      // transition navigation, not just the initial load.
+      function initReveals() {
+        var els = document.querySelectorAll(".reveal:not(.revealed)");
+        if (!els.length) return;
+        if (!("IntersectionObserver" in window)) {
+          els.forEach(function (el) {
+            el.classList.add("revealed");
+          });
+          return;
+        }
+        var observer = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("revealed");
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { rootMargin: "0px 0px -10% 0px" }
+        );
+        els.forEach(function (el) {
+          observer.observe(el);
+        });
+      }
+      document.addEventListener("astro:page-load", initReveals);
+    </script>
+  </body>
+</html>

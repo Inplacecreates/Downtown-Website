@@ -1,0 +1,215 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import ImagePlaceholder from "../../components/ImagePlaceholder.astro";
+
+/*
+ * DJ detail page. One generated per JSON file in src/content/djs/.
+ * Mirrors the resident profile shape so the layout reads the same:
+ *   1. Full-bleed hero image
+ *   2. Identity (back link, name, genres + since, tagline, bio)
+ *   3. Offerings: when they play, what they bring
+ *   4. Contact (polarity flip to Ink)
+ *
+ * Same transition:name pattern as residents so home → DJ → home
+ * gets shared-element morphs when the DJ is linked from anywhere
+ * with matching transition names.
+ */
+
+export async function getStaticPaths() {
+  const djs = await getCollection("djs");
+  return djs.map((entry) => ({
+    params: { slug: entry.id },
+    props: { dj: entry.data },
+  }));
+}
+
+interface Props {
+  dj: import("astro:content").CollectionEntry<"djs">["data"];
+}
+
+const { dj } = Astro.props as Props;
+
+const firstWord = dj.name.split(" ").slice(-1)[0]; // "Slick" from "DJ Slick"
+
+const instagramHref =
+  dj.contact?.instagram?.startsWith("@")
+    ? `https://instagram.com/${dj.contact.instagram.slice(1)}`
+    : dj.contact?.instagram;
+
+const websiteDisplay = dj.contact?.website?.replace(/^https?:\/\//, "");
+---
+
+<Layout
+  title={`${dj.name} · Downtown`}
+  description={dj.tagline ?? `${dj.name}, resident DJ at Downtown.`}
+>
+  <article>
+    {/* Full-bleed hero image */}
+    <div class="reveal">
+      <ImagePlaceholder
+        caption={dj.captionHint}
+        aspect="wide"
+        src={dj.image}
+        transition:name={`dj-${Astro.params.slug}-image`}
+      />
+    </div>
+
+    {/* Identity */}
+    <section class="border-b border-border">
+      <div
+        class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20"
+      >
+        <a
+          href="/#sounds-like"
+          class="reveal inline-flex items-center gap-2 font-mono text-sm uppercase tracking-wider text-muted-foreground transition-colors hover:text-bonfire"
+        >
+          <span aria-hidden="true">←</span>
+          On the decks
+        </a>
+
+        <h1
+          class="reveal mt-8 font-display font-black uppercase tracking-tight text-[clamp(48px,9vw,128px)] leading-[0.95]"
+          style="transition-delay: 100ms"
+          transition:name={`dj-${Astro.params.slug}-name`}
+        >
+          {dj.name}
+        </h1>
+
+        <p
+          class="reveal mt-6 font-mono text-sm uppercase tracking-wider text-bonfire"
+          style="transition-delay: 200ms"
+        >
+          {dj.discipline}
+          {dj.since && (
+            <span class="text-muted-foreground">
+              · on the decks since {dj.since}
+            </span>
+          )}
+        </p>
+
+        {dj.tagline && (
+          <p
+            class="reveal mt-12 max-w-prose font-display font-black uppercase tracking-tight text-[clamp(28px,4.5vw,56px)] leading-[1.05]"
+            style="transition-delay: 300ms"
+          >
+            {dj.tagline}
+          </p>
+        )}
+
+        {dj.bio && (
+          <p
+            class="reveal mt-8 max-w-prose font-sans text-lg leading-relaxed"
+            style="transition-delay: 400ms"
+          >
+            {dj.bio}
+          </p>
+        )}
+      </div>
+    </section>
+
+    {/* Offerings */}
+    {dj.offerings.length > 0 && (
+      <section class="border-b border-border">
+        <div class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20">
+          <p class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground">
+            On the bill
+          </p>
+          <h2
+            class="reveal mt-6 font-display font-black uppercase tracking-tight text-[clamp(40px,6vw,80px)] leading-[1.0]"
+            style="transition-delay: 100ms"
+          >
+            When and what.
+          </h2>
+          <ul class="mt-12 max-w-3xl">
+            {dj.offerings.map((offer, i) => (
+              <li
+                class="reveal flex items-baseline gap-6 border-t border-border py-5 last:border-b"
+                style={`transition-delay: ${200 + i * 80}ms`}
+              >
+                <span class="font-mono text-xs uppercase tracking-wider text-bonfire">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span class="font-display text-xl font-black uppercase tracking-tight md:text-2xl lg:text-3xl">
+                  {offer}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )}
+
+    {/* Contact */}
+    {dj.contact && (
+      <section class="dark bg-background text-foreground">
+        <div class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20">
+          <p class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground">
+            Book {firstWord}
+          </p>
+          <h2
+            class="reveal mt-6 font-display font-black uppercase tracking-tight text-[clamp(40px,6vw,80px)] leading-[1.0]"
+            style="transition-delay: 100ms"
+          >
+            Get <span class="bg-bonfire px-3 text-ink">{firstWord}</span> on the bill.
+          </h2>
+
+          <ul class="reveal mt-12 flex flex-col gap-4" style="transition-delay: 200ms">
+            {instagramHref && (
+              <li>
+                <a
+                  href={instagramHref}
+                  target="_blank"
+                  rel="noopener"
+                  class="group inline-flex flex-wrap items-baseline gap-3 transition-colors hover:text-bonfire"
+                >
+                  <span class="font-display text-2xl font-black uppercase tracking-tight md:text-3xl">
+                    Instagram
+                  </span>
+                  <span class="font-mono text-sm text-muted-foreground group-hover:text-bonfire">
+                    {dj.contact.instagram}
+                  </span>
+                  <span aria-hidden="true" class="font-mono text-base">→</span>
+                </a>
+              </li>
+            )}
+            {dj.contact.email && (
+              <li>
+                <a
+                  href={`mailto:${dj.contact.email}`}
+                  class="group inline-flex flex-wrap items-baseline gap-3 transition-colors hover:text-bonfire"
+                >
+                  <span class="font-display text-2xl font-black uppercase tracking-tight md:text-3xl">
+                    Email
+                  </span>
+                  <span class="font-mono text-sm text-muted-foreground group-hover:text-bonfire">
+                    {dj.contact.email}
+                  </span>
+                  <span aria-hidden="true" class="font-mono text-base">→</span>
+                </a>
+              </li>
+            )}
+            {dj.contact.website && (
+              <li>
+                <a
+                  href={dj.contact.website}
+                  target="_blank"
+                  rel="noopener"
+                  class="group inline-flex flex-wrap items-baseline gap-3 transition-colors hover:text-bonfire"
+                >
+                  <span class="font-display text-2xl font-black uppercase tracking-tight md:text-3xl">
+                    Website
+                  </span>
+                  <span class="font-mono text-sm text-muted-foreground group-hover:text-bonfire">
+                    {websiteDisplay}
+                  </span>
+                  <span aria-hidden="true" class="font-mono text-base">→</span>
+                </a>
+              </li>
+            )}
+          </ul>
+        </div>
+      </section>
+    )}
+  </article>
+</Layout>

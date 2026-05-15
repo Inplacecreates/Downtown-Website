@@ -1,0 +1,19 @@
+{
+  "name": "McBull Studios",
+  "discipline": "Woodwork · Painting · Metal",
+  "tagline": "Wood, paint, steel. Built to last.",
+  "since": "2023",
+  "bio": "McBull works across wood, paint, and metal. The studio behind the bar's joinery, the seating around the fire, the steel that holds the makuti up. Commissions for clients within Downtown and well beyond it.",
+  "captionHint": "McBull workshop in progress",
+  "image": "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1600&q=80&fit=crop&auto=format",
+  "offerings": [
+    "Custom furniture and joinery",
+    "Bar, venue, and home fittings",
+    "Metal fabrication and welding",
+    "Painting and surface finishing"
+  ],
+  "contact": {
+    "instagram": "@mcbullstudios",
+    "email": "mcbull@downtown.example"
+  }
+}

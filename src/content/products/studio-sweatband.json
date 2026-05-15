@@ -1,0 +1,16 @@
+{
+  "name": "Studio sweatband",
+  "category": "Wristband",
+  "tagline": "For Wednesdays. Cotton terry, embroidered mark.",
+  "description": "Cotton-terry wristband, embroidered Downtown mark, three colourways. Built for the Wednesday dance class, fine for the rest of the week. Sold solo or as a pair.",
+  "price": "[KES 650]",
+  "pillar": "dance",
+  "variants": [
+    { "label": "Colour", "options": ["Cream", "Ember black", "Bonfire"] },
+    { "label": "Quantity", "options": ["Single", "Pair"] }
+  ],
+  "imageCaption": "Studio sweatband, cream, embroidered Downtown mark",
+  "image": "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=1200&q=80&fit=crop&auto=format",
+  "inStock": true,
+  "featured": false
+}

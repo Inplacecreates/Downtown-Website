@@ -1,0 +1,355 @@
+@import "tailwindcss";
+
+/*
+ * Downtown brand theme, Tailwind v4 + shadcn New York.
+ * Brand tokens are from docs/DESIGN.md. Do not introduce a second accent;
+ * Bonfire is the only highlight colour.
+ *
+ * Polarity:
+ *   :root          Cream-on-Ink default (light section)
+ *   .dark          Ink-on-Cream override (dark section)
+ * Both polarities live in the page. Apply .dark on a <section> to invert
+ * that section without a user toggle. See DESIGN.md section 3 rule 2.
+ */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #f5efe3; /* Cream */
+  --foreground: #0e0c0a; /* Ink */
+  --card: #f5efe3;
+  --card-foreground: #0e0c0a;
+  --popover: #f5efe3;
+  --popover-foreground: #0e0c0a;
+  --primary: #ff6a1f; /* Bonfire */
+  --primary-foreground: #0e0c0a; /* Ink, for 8:1 contrast on Bonfire (was Cream at 2.5:1, failed WCAG AA) */
+  --secondary: #e5dfd3; /* Smoke */
+  --secondary-foreground: #0e0c0a;
+  --muted: #e5dfd3;
+  --muted-foreground: #4a4641; /* Concrete */
+  --accent: #ff6a1f; /* Bonfire, intentionally same as primary */
+  --accent-foreground: #0e0c0a;
+  --destructive: #ff6a1f;
+  --destructive-foreground: #0e0c0a;
+  --border: #4a4641; /* Concrete */
+  --input: #4a4641;
+  --ring: #ff6a1f;
+  --radius: 0.25rem;
+}
+
+.dark {
+  --background: #0e0c0a; /* Ink */
+  --foreground: #f5efe3; /* Cream */
+  --card: #0e0c0a;
+  --card-foreground: #f5efe3;
+  --popover: #0e0c0a;
+  --popover-foreground: #f5efe3;
+  --primary: #ff6a1f;
+  --primary-foreground: #0e0c0a;
+  --secondary: #4a4641; /* Concrete */
+  --secondary-foreground: #f5efe3;
+  --muted: #4a4641;
+  --muted-foreground: #e5dfd3; /* Smoke */
+  --accent: #ff6a1f;
+  --accent-foreground: #0e0c0a;
+  --destructive: #ff6a1f;
+  --destructive-foreground: #0e0c0a;
+  --border: #4a4641;
+  --input: #4a4641;
+  --ring: #ff6a1f;
+}
+
+@theme inline {
+  /* Brand fonts */
+  --font-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  /* shadcn semantic colour mappings */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Brand raw colours, for direct use as bg-bonfire, text-cream, etc. */
+  --color-ink: #0e0c0a;
+  --color-cream: #f5efe3;
+  --color-bonfire: #ff6a1f;
+  --color-smoke: #e5dfd3;
+  --color-concrete: #4a4641;
+  --color-moonlight: #a6b5bc;
+
+  --radius-sm: calc(var(--radius) - 0.125rem);
+  --radius-md: calc(var(--radius) - 0.0625rem);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 0.25rem);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html,
+  body {
+    min-height: 100vh;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body > main {
+    flex: 1 1 auto;
+  }
+
+  /*
+   * Global focus-visible ring in Bonfire orange. Applies to every
+   * focusable element unless explicitly overridden, so keyboard users
+   * always see where they are.
+   */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
+/*
+ * Marquee, the brand's signature motion. Pure CSS so no JS island for
+ * what is fundamentally a continuous decoration.
+ * - Linear easing forever (no acceleration, the metronome rule).
+ * - Pauses on hover via .pause-on-hover ancestor.
+ * - Static at the first item when prefers-reduced-motion is set.
+ *
+ * Markup expects the items to be duplicated (the second set mirrors
+ * the first) so translateX(-50%) lands the second set exactly where
+ * the first started: seamless loop.
+ */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 40s linear infinite;
+  will-change: transform;
+}
+
+.pause-on-hover:hover .animate-marquee {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+    transform: translateX(0);
+  }
+}
+
+/*
+ * Scroll-reveal (Pattern 1 from motion-patterns/SKILL.md).
+ * Gated on a .js class on <html> so no-JS users see content
+ * immediately, not a permanently invisible page. The .js class is
+ * added by an inline script in Layout.astro <head> before paint.
+ * Respects prefers-reduced-motion.
+ */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.js .reveal.revealed {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal,
+  .js .reveal.revealed {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/*
+ * Scroll-driven SVG path drawing. The path is set to a normalised
+ * length (pathLength="1") so the stroke-dasharray and dashoffset
+ * are simple numbers. As the element enters the viewport, dashoffset
+ * animates 1 -> 0, drawing the line as the user scrolls.
+ *
+ * Browser support: Chrome 115+, Edge, Opera. Safari and Firefox
+ * fall through the @supports gate to the static fallback below
+ * (line fully drawn, no animation).
+ */
+.draw-on-scroll {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0; /* Safari / Firefox fallback: fully drawn */
+}
+
+@supports (animation-timeline: view()) {
+  .draw-on-scroll {
+    stroke-dashoffset: 1;
+    animation: draw-path linear both;
+    animation-timeline: view();
+    animation-range: entry 10% cover 60%;
+  }
+
+  @keyframes draw-path {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .draw-on-scroll {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+}
+
+/*
+ * Marker pulse-in. Each waypoint fades up from 30% to 100% opacity
+ * as it enters the viewport, so the path's progress reads as
+ * hitting stations rather than passing static dots. Works on both
+ * HTML elements and SVG <rect> via plain opacity (no transforms,
+ * so it survives preserveAspectRatio="none" SVG stretching).
+ *
+ * Falls back to fully visible on Safari, Firefox, and any browser
+ * without animation-timeline support, and on prefers-reduced-motion.
+ */
+.scroll-pulse {
+  opacity: 1;
+}
+
+@supports (animation-timeline: view()) {
+  .scroll-pulse {
+    opacity: 0.3;
+    animation: pulse-arrive linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 70%;
+  }
+
+  @keyframes pulse-arrive {
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-pulse {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+/*
+ * Past arc hover-revealed polaroids. The floating polaroid starts
+ * hidden (transparent, slightly scaled and rotated back) and
+ * fades in when the row is hovered or contains keyboard focus. It
+ * stays decorative: substantive content lives in the row's text
+ * and achievement chip, and a mobile-visible inline copy below
+ * the body text covers viewports without hover.
+ *
+ * The .past-row utility carries no styles itself; it's just a
+ * hook for descendant selectors so the polaroid can react to the
+ * row state.
+ */
+.past-polaroid {
+  opacity: 0;
+  translate: -50% -50%;
+  scale: 0.96;
+  /* rotate is set per row via Tailwind (md:-rotate-2 / md:rotate-2);
+     using individual transform properties lets translate, scale,
+     and rotate compose without clobbering each other. */
+  transition:
+    opacity 220ms ease-out,
+    scale 220ms ease-out;
+}
+
+.past-row:hover .past-polaroid,
+.past-row:focus-within .past-polaroid {
+  opacity: 1;
+  scale: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .past-polaroid {
+    opacity: 1;
+    scale: 1;
+    transition: none;
+  }
+}
+
+/*
+ * <details> disclosure used by the five-year dashboard for quarterly
+ * breakdowns. Hides the browser-default marker (Safari needs the
+ * ::-webkit-details-marker rule explicitly even with list-style:none
+ * on the summary) so the custom ›/group-open indicator is the only
+ * one users see.
+ */
+.year-detail > summary::-webkit-details-marker {
+  display: none;
+}
+.year-detail > summary {
+  list-style: none;
+}
+
+/*
+ * Night-scrubber affordances. The container hides its native
+ * scrollbar so the ruler + edge fades carry the affordance
+ * burden. cursor-grab signals it's draggable; is-dragging
+ * (toggled by the inline script) switches to grabbing and
+ * disables scroll-snap so the scrub stays smooth rather than
+ * fighting the user every few pixels.
+ *
+ * Drag behaviour is mouse-only via Pointer Events; touch keeps
+ * native scrolling.
+ */
+.night-scrubber {
+  cursor: grab;
+  scrollbar-width: none;
+}
+.night-scrubber::-webkit-scrollbar {
+  display: none;
+}
+.night-scrubber.is-dragging {
+  cursor: grabbing;
+  scroll-snap-type: none;
+  user-select: none;
+}
+
+@media (hover: none) {
+  /* Touch devices don't need the grab cursor and shouldn't have
+     it briefly flash before scroll. */
+  .night-scrubber {
+    cursor: auto;
+  }
+}

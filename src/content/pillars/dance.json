@@ -1,0 +1,83 @@
+{
+  "order": 3,
+  "name": "Dance",
+  "tagline": "Wednesday is the dance night. A drum kit always set up.",
+  "cardBody": "Wednesday is the dance night. Booked acts, in-house choreographers, social classes. A dedicated studio opens in 2027.",
+  "problem": "There is no dedicated dance studio in Nanyuki. Local choreographers rehearse in school halls and church compounds, with no fixed schedule and no income from teaching. Social dance happens at weddings and at clubs. There is no weeknight where you can take a class, watch a piece, and stay for a drink.",
+  "approach": "Downtown turns Wednesday into the dance night. Booked choreography on the stage; a social class in the hour before doors; in-house choreographers contracted for a published season. From 2027 a dedicated dance studio opens across the courtyard for daytime training and rehearsal.",
+  "programmes": [
+    {
+      "name": "Wednesday dance night",
+      "description": "One booked choreography piece on the stage (15-30 minutes), social class in the warm-up hour, social dance until close. Cover is small, the queue is short.",
+      "cadence": "Weekly"
+    },
+    {
+      "name": "In-house choreographer residency",
+      "description": "Two contracted choreographers per year. Each delivers a publicly-staged piece per quarter and teaches a weekly drop-in class.",
+      "cadence": "Annual"
+    },
+    {
+      "name": "Daytime dance studio (from 2027)",
+      "description": "Open Tuesday-Saturday for rehearsal, drop-in classes, and private hire. Free morning slot for under-twenty-fives.",
+      "cadence": "Daily, daytime"
+    },
+    {
+      "name": "Annual showcase",
+      "description": "End-of-year evening at the main stage, all residents and class attendees on the bill. Free entry, public audience."
+    }
+  ],
+  "outcomes": [
+    {
+      "year": "2026",
+      "target": "Wednesday dance night running. Two in-house choreographers on contract. 40+ social classes delivered."
+    },
+    {
+      "year": "2027",
+      "target": "Dance studio opens. Daytime classes operational. [N] under-twenty-fives in regular free attendance."
+    },
+    {
+      "year": "2028",
+      "target": "Second choreographer cohort. Main-stage showcase produced as a paid-ticket event."
+    },
+    {
+      "year": "2029",
+      "target": "First Downtown Creative Festival dance week. Partnership with [Partner: Nairobi dance company]."
+    },
+    {
+      "year": "2030",
+      "target": "International choreographer-in-residence (two per year). Touring relationship with [Partner: East African dance network]."
+    }
+  ],
+  "fundingNeeds": [
+    {
+      "kind": "Capex",
+      "label": "Dance studio fit-out across the courtyard (sprung floor, mirrors, sound)",
+      "amount": "[KES 2,800,000]",
+      "timing": "2027"
+    },
+    {
+      "kind": "Opex",
+      "label": "Choreographer residency stipends, two posts",
+      "amount": "[KES 960,000 / year]",
+      "timing": "From 2026"
+    },
+    {
+      "kind": "Programme grant",
+      "label": "Wednesday programme production (booking, lighting, social-class subsidy)",
+      "amount": "[KES 420,000 / year]",
+      "timing": "From 2026"
+    },
+    {
+      "kind": "Scholarship fund",
+      "label": "Free daytime classes for under-twenty-fives",
+      "amount": "[KES 600,000 / year]",
+      "timing": "From 2027"
+    }
+  ],
+  "partners": [
+    "[Partner: Nairobi dance company, mentorship and touring]",
+    "[Partner: Kenya Cultural Centre]",
+    "[Partner: Mt Kenya University performing arts department]"
+  ],
+  "residents": []
+}

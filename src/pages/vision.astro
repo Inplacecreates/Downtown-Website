@@ -1,0 +1,689 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "../layouts/Layout.astro";
+
+/*
+ * Pillars sourced from the content collection so the seven cards on
+ * this page and the seven detail pages at /pillars/[slug] read from
+ * the same JSON source. Sorted by the explicit order field rather
+ * than file id so adding a new pillar later doesn't reshuffle.
+ */
+const pillarEntries = (await getCollection("pillars")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+
+/*
+ * /vision page. Downtown's 5-year roadmap and creative-community
+ * mission. Sections:
+ *   1. Hero: declarative manifesto, voice-first
+ *   2. The promise: short paragraphs explaining why this exists
+ *   3. The 5-year plan: a curved SVG path snakes down the page with
+ *      a year-step at each curve endpoint; the path draws itself as
+ *      the user scrolls (CSS animation-timeline: view() with a
+ *      static fallback for non-Chromium browsers)
+ *   4. Get involved CTA (polarity flip)
+ *
+ * Designed to read like a grant prospectus dressed up in Downtown's
+ * voice. Year content can be edited inline below; if Vin wants the
+ * roadmap to grow beyond five years, this graduates to its own
+ * content collection.
+ */
+
+const yearPlan = [
+  {
+    label: "Year 1",
+    year: "2026",
+    title: "Foundation.",
+    body:
+      "What we have, what we're building from. The residency programme established with four creative studios and three resident DJs. Fifty-plus programmed nights. First Nanyuki to Nairobi artist exchange. The bonfire goes year-round.",
+    status: "In progress",
+    progressPct: 56,
+    progress: "28 of 50 nights · 7 residents placed",
+    details: [
+      "Q1: 28 nights programmed, seven residents placed.",
+      "Q2: Nanyuki to Nairobi exchange #1 scheduled.",
+      "Q3 target: residency contracts renewed, fifty-plus nights locked.",
+      "Q4 target: bonfire goes year-round on the published calendar.",
+    ],
+  },
+  {
+    label: "Year 2",
+    year: "2027",
+    title: "More room.",
+    body:
+      "A dedicated dance studio across the courtyard. A youth music academy running Wednesday afternoons, free to under-twenty-fives. A second gallery for the resident artists to show work. A drum kit always set up.",
+    status: "Planned",
+    progressPct: 0,
+    progress: "Scoping the courtyard build",
+    details: [
+      "Q1 target: courtyard build scoping complete, fabricator selected.",
+      "Q2 target: dance studio shell up, second gallery wall ready.",
+      "Q3 target: youth academy curriculum drafted with partner schools.",
+      "Q4 target: doors open on the dance studio, drum kit lives there.",
+    ],
+  },
+  {
+    label: "Year 3",
+    year: "2028",
+    title: "The build.",
+    body:
+      "Renovation year. Main stage expanded to hold two thousand under the makuti. An outdoor amphitheatre for sunset programming. A small recording booth so residents can cut tracks between sets and rehearse without leaving the room.",
+    status: "Planned",
+    progressPct: 0,
+    progress: "Budget phase",
+    details: [
+      "Q1 target: main-stage build budget approved.",
+      "Q2 target: amphitheatre groundwork breaks.",
+      "Q3 target: recording booth fitted, residents tracking on-site.",
+      "Q4 target: main stage operational at 2,000 capacity.",
+    ],
+  },
+  {
+    label: "Year 4",
+    year: "2029",
+    title: "Scholarships.",
+    body:
+      "Twenty free creative scholarships for Nanyuki youth, annually. Partnership with Mt Kenya University covering tuition for placed students. First edition of the Downtown Creative Festival, a free week-long programme in March.",
+    status: "Planned",
+    progressPct: 0,
+    progress: "Partnership conversations ongoing",
+    details: [
+      "Q1 target: scholarship intake opens.",
+      "Q2 target: Mt Kenya University agreement signed.",
+      "Q3 target: first cohort of twenty scholarship students placed.",
+      "Q4 target: Downtown Creative Festival edition 1, free, week-long.",
+    ],
+  },
+  {
+    label: "Year 5",
+    year: "2030",
+    title: "The institution.",
+    body:
+      "The Downtown Creative Foundation: a structured non-profit arm with its own board. Permanent collection and a working archive of resident work. International artist residency programme in operation, hosting two guests each quarter.",
+    status: "Planned",
+    progressPct: 0,
+    progress: "Structure to be drafted in 2028",
+    details: [
+      "Q1 target: foundation legal structure drafted.",
+      "Q2 target: founding board appointed, public charter published.",
+      "Q3 target: permanent collection cataloguing begins.",
+      "Q4 target: international residency programme launches, two guests in residence.",
+    ],
+  },
+];
+
+/*
+ * Pillar tile data is now sourced from the pillars collection
+ * (loaded at the top of this script). The shape used by the grid
+ * below: { slug, name, cardBody }. Detail pages live at
+ * /pillars/[slug] and carry the full grant-prospectus content.
+ */
+
+/*
+ * The backstory arc: 2022 - 2025, what's already been built. Same
+ * curve treatment as the future arc but fully drawn from the start
+ * (no .draw-on-scroll on the Bonfire path), because the past is
+ * done. Status chips read "Built" with a concrete achievement.
+ */
+const pastArc = [
+  {
+    label: "Year zero",
+    year: "2022",
+    title: "Lit.",
+    body:
+      "The first Saturday: thirty regulars, one bonfire, three DJs from Nairobi sleeping on the floor. No residents, no schedule, no real plan. The room finds itself in eight hours.",
+    achievement: "30 regulars · 1 bonfire",
+    image: "First Saturday. Bonfire lit, room finding itself.",
+    imageSrc:
+      "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=1200&q=80&fit=crop&auto=format",
+  },
+  {
+    label: "Year one",
+    year: "2023",
+    title: "First residents.",
+    body:
+      "McBull moves in with a bench and a band saw. Bonoqqo arrives with three cameras and a hard drive. The bar starts running on Fridays. A drum kit appears, then vanishes, then comes back.",
+    achievement: "2 residents · Friday becomes a thing",
+    image: "McBull's bench at the back, Bonoqqo's first prints up.",
+    imageSrc:
+      "https://images.unsplash.com/photo-1582738411706-bfc8e691d1c2?w=1200&q=80&fit=crop&auto=format",
+  },
+  {
+    label: "Year two",
+    year: "2024",
+    title: "Pattern locked.",
+    body:
+      "Six nights a week becomes the standard. Saturday emerges as the flagship. The first Nanyuki to Nairobi DJ exchange happens informally; programming starts to look like a real schedule.",
+    achievement: "6 nights · Saturday as flagship",
+    image: "Saturday peak. Room full, bonfire steady.",
+    imageSrc:
+      "https://images.unsplash.com/photo-1574391884720-bbc3740c59d1?w=1200&q=80&fit=crop&auto=format",
+  },
+  {
+    label: "Year three",
+    year: "2025",
+    title: "Roster fills out.",
+    body:
+      "Sir Jay opens the fashion studio. Saint Arts begins tattooing on Tuesdays. DJ Slick, DJ 2Face, and DJ Schoolboy formalised as residents. The bonfire goes year-round for the first time.",
+    achievement: "7 residents · bonfire all year",
+    image: "Sir Jay's fashion studio opens. Tuesday tattoo at Saint Arts.",
+    imageSrc:
+      "https://images.unsplash.com/photo-1611605645802-c21be743c321?w=1200&q=80&fit=crop&auto=format",
+  },
+];
+
+/*
+ * SVG path coordinates. Past arc has 4 markers in a viewBox of
+ * 0 0 200 1200. Future arc has 5 markers in 0 0 200 1800. Both use
+ * pathLength="1" so the dashoffset animation works on a normalised
+ * 1 -> 0 range regardless of actual path length.
+ */
+const pastPathD =
+  "M 100 0 Q 220 200, 100 400 Q -20 600, 100 800 Q 220 1000, 100 1200";
+const pastMarkerYs = [0, 400, 800, 1200];
+---
+
+<Layout
+  title="The vision · Downtown"
+  description="Downtown's five-year plan to expand access to music, art, dance, and creative practice for young people in Nanyuki."
+>
+  <article>
+    {/* Hero / manifesto */}
+    <section class="border-b border-border">
+      <div
+        class="mx-auto max-w-[1440px] px-6 pt-24 md:px-12 md:pt-32 lg:px-20 lg:pt-40"
+      >
+        <p
+          class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+        >
+          The vision
+        </p>
+        <h1
+          class="reveal mt-6 font-display font-black uppercase tracking-tight text-[clamp(48px,9vw,128px)] leading-[0.95]"
+          style="transition-delay: 100ms"
+        >
+          More than a <span class="bg-bonfire px-3 text-ink">venue</span>.
+        </h1>
+        <p
+          class="reveal mt-8 max-w-prose font-sans text-xl leading-relaxed"
+          style="transition-delay: 200ms"
+        >
+          Downtown is Nanyuki's creative-community space, dressed as a
+          nightclub. Music six nights a week, yes. Also dance, art,
+          fashion, photography, tattoo, woodwork, painting, stage,
+          expression. Built for the young people of this town and
+          everyone they bring with them.
+        </p>
+        <p
+          class="reveal mt-6 max-w-prose font-sans text-lg leading-relaxed"
+          style="transition-delay: 300ms"
+        >
+          This page is the plan: how we keep going, what we're
+          building over five years, who gets in for free, what
+          changes about the room.
+        </p>
+      </div>
+
+      <div
+        class="reveal mt-20 border-t border-border md:mt-28"
+        style="transition-delay: 400ms"
+      />
+    </section>
+
+    {/* Pillars */}
+    <section id="pillars" class="border-b border-border">
+      <div
+        class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20"
+      >
+        <p
+          class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+        >
+          Seven pillars
+        </p>
+        <h2
+          class="reveal mt-6 font-display font-black uppercase tracking-tight text-[clamp(40px,6vw,80px)] leading-[1.0]"
+          style="transition-delay: 100ms"
+        >
+          What we do, in <span class="bg-bonfire px-3 text-ink">seven</span> lanes.
+        </h2>
+        <p
+          class="reveal mt-6 max-w-prose font-sans text-lg leading-relaxed"
+          style="transition-delay: 200ms"
+        >
+          The shape of the work. Music has a stage, art has a wall,
+          dance has a floor, youth has a door, painting has a brush,
+          expression has a mic, stage has a programme. Tap any
+          pillar to read the full case: the problem, the approach,
+          programmes, 2026 - 2030 outcomes, funding asks. Or jump
+          to <a href="/community" class="underline underline-offset-4 hover:text-bonfire">the community page</a> to see who lives in each lane.
+        </p>
+
+        <ul class="mt-16 grid gap-8 md:grid-cols-2 md:gap-10 lg:grid-cols-3 lg:gap-12">
+          {
+            pillarEntries.map((entry, i) => (
+              <li class="reveal" style={`transition-delay: ${300 + i * 80}ms`}>
+                <a
+                  href={`/pillars/${entry.id}`}
+                  class="pillar-tile group relative flex h-full flex-col overflow-hidden border border-border bg-cream px-6 py-8 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-bonfire hover:shadow-[0_18px_36px_-18px_rgba(20,20,20,0.18)] focus-visible:-translate-y-1 focus-visible:border-bonfire focus-visible:shadow-[0_18px_36px_-18px_rgba(20,20,20,0.18)] focus-visible:outline-none md:px-8 md:py-10"
+                >
+                  {/* Bonfire wash that swipes up from the bottom on
+                      hover. pointer-events-none and behind the
+                      content via negative z-index on the parent. */}
+                  <span
+                    aria-hidden="true"
+                    class="pointer-events-none absolute inset-x-0 bottom-0 h-1 origin-left scale-x-0 bg-bonfire transition-transform duration-500 ease-out group-hover:scale-x-100 group-focus-visible:scale-x-100"
+                  />
+
+                  <div class="flex items-baseline justify-between">
+                    <p class="font-mono text-xs uppercase tracking-wider text-bonfire transition-transform duration-300 ease-out group-hover:scale-110 group-hover:translate-x-0.5 group-focus-visible:scale-110 group-focus-visible:translate-x-0.5">
+                      {String(entry.data.order).padStart(2, "0")}
+                    </p>
+                    <span
+                      aria-hidden="true"
+                      class="font-mono text-sm text-muted-foreground transition-all duration-300 ease-out group-hover:translate-x-1 group-hover:text-bonfire group-focus-visible:translate-x-1 group-focus-visible:text-bonfire"
+                    >
+                      →
+                    </span>
+                  </div>
+
+                  <h3 class="mt-3 font-display text-3xl font-black uppercase leading-tight tracking-tight md:text-4xl">
+                    <span class="relative inline-block">
+                      {entry.data.name}.
+                      {/* Animated underline that reveals from left
+                          on hover. Sits below the baseline. */}
+                      <span
+                        aria-hidden="true"
+                        class="absolute -bottom-1 left-0 h-1 w-full origin-left scale-x-0 bg-bonfire transition-transform duration-500 ease-out group-hover:scale-x-100 group-focus-visible:scale-x-100"
+                      />
+                    </span>
+                  </h3>
+
+                  <p class="mt-4 font-sans text-base leading-relaxed text-foreground">
+                    {entry.data.cardBody}
+                  </p>
+
+                  <p class="mt-6 inline-flex items-center gap-2 border-t border-border pt-4 font-mono text-xs uppercase tracking-wider text-muted-foreground transition-colors duration-300 group-hover:text-bonfire group-focus-visible:text-bonfire">
+                    <span>Read the case</span>
+                    <span
+                      aria-hidden="true"
+                      class="inline-block transition-transform duration-300 ease-out group-hover:translate-x-1 group-focus-visible:translate-x-1"
+                    >
+                      →
+                    </span>
+                  </p>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    {/* Backstory arc: 2022 - 2025 (polarity flip to dark for past) */}
+    <section
+      id="backstory"
+      class="dark relative overflow-hidden border-t border-border bg-background text-foreground"
+    >
+      <div
+        class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20"
+      >
+        <p
+          class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+        >
+          2022 to 2025
+        </p>
+        <h2
+          class="reveal mt-6 font-display font-black uppercase tracking-tight text-[clamp(40px,6vw,80px)] leading-[1.0]"
+          style="transition-delay: 100ms"
+        >
+          How we got <span class="bg-bonfire px-3 text-ink">here</span>.
+        </h2>
+        <p
+          class="reveal mt-6 max-w-prose font-sans text-lg leading-relaxed"
+          style="transition-delay: 200ms"
+        >
+          The first four years. The path is fully lit because this
+          part is already built. Each year settled into the shape we
+          now run.
+        </p>
+
+        {/* Backstory curve + cards */}
+        <div class="relative mt-20">
+          <svg
+            class="pointer-events-none absolute left-1/2 top-0 hidden h-full w-40 -translate-x-1/2 md:block lg:w-48"
+            viewBox="0 0 200 1200"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <defs>
+              <filter
+                id="past-bonfire-glow"
+                x="-20%"
+                y="-20%"
+                width="140%"
+                height="140%"
+              >
+                <feGaussianBlur
+                  in="SourceGraphic"
+                  stdDeviation="4"
+                  result="blur"
+                />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+
+            {/* Base path (Concrete) */}
+            <path
+              d={pastPathD}
+              fill="none"
+              stroke-width="2"
+              stroke-linecap="round"
+              class="stroke-border"
+            />
+            {/* Past path (Bonfire, fully drawn, glow on). No
+                .draw-on-scroll because the past is complete. */}
+            <path
+              d={pastPathD}
+              fill="none"
+              stroke-width="3"
+              stroke-linecap="round"
+              filter="url(#past-bonfire-glow)"
+              class="stroke-bonfire"
+            />
+
+            {pastMarkerYs.map((y) => (
+              <>
+                <rect
+                  x="84"
+                  y={y - 16}
+                  width="32"
+                  height="32"
+                  class="fill-background"
+                />
+                <rect
+                  x="91"
+                  y={y - 9}
+                  width="18"
+                  height="18"
+                  class="fill-bonfire"
+                />
+              </>
+            ))}
+          </svg>
+
+          <ol class="relative space-y-20 md:space-y-32">
+            {
+              pastArc.map((step, i) => {
+                const reversed = i % 2 === 1;
+                const tilt = i % 2 === 0 ? "md:-rotate-2" : "md:rotate-2";
+                return (
+                  <li
+                    class="past-row group reveal relative grid items-start gap-8 md:grid-cols-2 md:gap-32 lg:gap-48"
+                    style={`transition-delay: ${300 + i * 100}ms`}
+                  >
+                    <div
+                      class={
+                        reversed
+                          ? "md:order-2 md:text-left"
+                          : "md:text-right"
+                      }
+                    >
+                      <p class="font-mono text-sm uppercase tracking-wider text-bonfire">
+                        {step.label} · {step.year}
+                      </p>
+                      <h3 class="mt-4 font-display text-3xl font-black uppercase leading-tight tracking-tight md:text-5xl">
+                        {step.title}
+                      </h3>
+                    </div>
+                    <div class={reversed ? "md:order-1" : ""}>
+                      <p class="max-w-prose font-sans text-lg leading-relaxed">
+                        {step.body}
+                      </p>
+                      <div class="mt-6 inline-flex flex-wrap items-baseline gap-x-4 gap-y-1 border-t border-border pt-4">
+                        <span class="font-mono text-xs uppercase tracking-wider text-bonfire">
+                          <span aria-hidden="true" class="mr-2 inline-block h-2 w-2 bg-bonfire" />
+                          Built
+                        </span>
+                        <span class="font-mono text-xs uppercase tracking-wider text-muted-foreground">
+                          {step.achievement}
+                        </span>
+                      </div>
+
+                      {/* Inline polaroid, mobile only. On desktop the
+                          hover-revealed floating polaroid below carries
+                          the same content. Real image if step.imageSrc
+                          is set; falls back to a typographic placeholder
+                          otherwise. */}
+                      <figure class="mt-8 max-w-xs bg-smoke p-3 pb-6 text-concrete shadow-lg md:hidden">
+                        {step.imageSrc ? (
+                          <div class="aspect-square overflow-hidden">
+                            <img
+                              src={step.imageSrc}
+                              alt={step.image}
+                              loading="lazy"
+                              decoding="async"
+                              class="h-full w-full object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div class="flex aspect-square items-center justify-center border border-concrete/20 bg-concrete/10 p-4 text-center">
+                            <span class="font-mono text-xs uppercase tracking-wider text-concrete/70">
+                              [Photo: {step.image}]
+                            </span>
+                          </div>
+                        )}
+                        <figcaption class="mt-3 text-center font-mono text-xs uppercase tracking-wider">
+                          {step.label} · {step.year}
+                        </figcaption>
+                      </figure>
+                    </div>
+
+                    {/* Floating polaroid, desktop hover-reveal. Hidden
+                        until the row is hovered. pointer-events-none
+                        so cursor stays on the row. Positioning and
+                        the entrance transition live in global.css
+                        (.past-polaroid); only the tilt and breakpoint
+                        visibility ride on Tailwind here. */}
+                    <figure
+                      class:list={[
+                        "past-polaroid pointer-events-none absolute left-1/2 top-1/2 z-20 hidden w-56 bg-smoke p-3 pb-6 text-concrete shadow-2xl shadow-black/60 md:block lg:w-64",
+                        tilt,
+                      ]}
+                      aria-hidden="true"
+                    >
+                      {step.imageSrc ? (
+                        <div class="aspect-square overflow-hidden">
+                          <img
+                            src={step.imageSrc}
+                            alt={step.image}
+                            loading="lazy"
+                            decoding="async"
+                            class="h-full w-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div class="flex aspect-square items-center justify-center border border-concrete/20 bg-concrete/10 p-4 text-center">
+                          <span class="font-mono text-xs uppercase tracking-wider text-concrete/70">
+                            [Photo: {step.image}]
+                          </span>
+                        </div>
+                      )}
+                      <figcaption class="mt-3 text-center font-mono text-xs uppercase tracking-wider">
+                        {step.label} · {step.year}
+                      </figcaption>
+                    </figure>
+                  </li>
+                );
+              })
+            }
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    {/* 5-year plan with curved SVG path */}
+    <section id="five-year" class="relative overflow-hidden">
+      <div
+        class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20"
+      >
+        <p
+          class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+        >
+          2026 to 2030
+        </p>
+        <h2
+          class="reveal mt-6 font-display font-black uppercase tracking-tight text-[clamp(40px,6vw,80px)] leading-[1.0]"
+          style="transition-delay: 100ms"
+        >
+          The five-year arc.
+        </h2>
+        <p
+          class="reveal mt-6 max-w-prose font-sans text-lg leading-relaxed"
+          style="transition-delay: 200ms"
+        >
+          Five years of public commitments. Each year carries a
+          target, a status, and a quarterly breakdown. Click any year
+          to read the detail. We will publish progress against this
+          list every quarter, in public.
+        </p>
+
+        {/*
+         * Five-year dashboard. Each row is a public progress
+         * card: year + title, status pill, body paragraph, a
+         * receipt-style progress bar with percentage, and an
+         * expandable quarterly breakdown rendered with native
+         * <details>/<summary> so keyboard and screen-reader
+         * users get the same affordances as mouse users.
+         */}
+        <ol class="mt-16 border-t border-border">
+          {
+            yearPlan.map((step, i) => {
+              const inProgress = step.status === "In progress";
+              return (
+                <li
+                  class="reveal border-b border-border py-10 md:py-14"
+                  style={`transition-delay: ${200 + i * 80}ms`}
+                >
+                  {/* Year + title, status pill */}
+                  <div class="grid grid-cols-1 gap-4 md:grid-cols-12 md:items-baseline md:gap-6">
+                    <div class="md:col-span-8">
+                      <p class="font-mono text-sm uppercase tracking-wider text-bonfire">
+                        {step.label} · {step.year}
+                      </p>
+                      <h3 class="mt-3 font-display text-3xl font-black uppercase leading-tight tracking-tight md:text-5xl">
+                        {step.title}
+                      </h3>
+                    </div>
+                    <div class="md:col-span-4 md:text-right">
+                      <span
+                        class:list={[
+                          "inline-flex items-center font-mono text-xs uppercase tracking-wider",
+                          inProgress
+                            ? "bg-bonfire px-3 py-1.5 text-ink"
+                            : "border border-border px-3 py-1.5 text-muted-foreground",
+                        ]}
+                      >
+                        {inProgress && (
+                          <span
+                            aria-hidden="true"
+                            class="mr-2 inline-block h-2 w-2 bg-ink"
+                          />
+                        )}
+                        {step.status}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Body */}
+                  <p class="mt-6 max-w-3xl font-sans text-lg leading-relaxed">
+                    {step.body}
+                  </p>
+
+                  {/* Progress bar */}
+                  <div class="mt-8 grid grid-cols-1 gap-3 md:grid-cols-12 md:items-center md:gap-6">
+                    <div class="md:col-span-9">
+                      <div
+                        class="h-3 w-full bg-border"
+                        role="progressbar"
+                        aria-valuenow={step.progressPct}
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                        aria-label={`${step.title} progress: ${step.progressPct}%`}
+                      >
+                        <div
+                          class="h-full bg-bonfire transition-all"
+                          style={`width: ${step.progressPct}%`}
+                        />
+                      </div>
+                    </div>
+                    <div class="font-mono text-sm uppercase tracking-wider text-bonfire md:col-span-3 md:text-right">
+                      {step.progressPct}% · {step.progress}
+                    </div>
+                  </div>
+
+                  {/* Expandable quarterly detail. Native <details>
+                      means keyboard Enter/Space toggle and screen
+                      reader announcement happen for free. */}
+                  <details class="year-detail group mt-6">
+                    <summary class="flex cursor-pointer list-none items-center gap-3 font-mono text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:text-bonfire focus-visible:text-bonfire focus-visible:outline-none">
+                      <span
+                        aria-hidden="true"
+                        class="inline-block transition-transform group-open:rotate-90"
+                      >
+                        ›
+                      </span>
+                      <span>Quarterly detail</span>
+                    </summary>
+                    <ul class="mt-5 ml-6 list-disc space-y-2 font-sans text-base leading-relaxed marker:text-bonfire">
+                      {step.details.map((d) => <li>{d}</li>)}
+                    </ul>
+                  </details>
+                </li>
+              );
+            })
+          }
+        </ol>
+      </div>
+    </section>
+
+    {/* CTA: Get involved (polarity flip) */}
+    <section class="dark border-t border-border bg-background text-foreground">
+      <div
+        class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20"
+      >
+        <p
+          class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+        >
+          Get involved
+        </p>
+        <h2
+          class="reveal mt-6 font-display font-black uppercase tracking-tight text-[clamp(40px,6vw,80px)] leading-[1.0]"
+          style="transition-delay: 100ms"
+        >
+          Help us <span class="bg-bonfire px-3 text-ink">build</span> it.
+        </h2>
+        <p
+          class="reveal mt-8 max-w-prose font-sans text-lg leading-relaxed"
+          style="transition-delay: 200ms"
+        >
+          Funders, partners, and people with something to teach, host,
+          or bring: we want to hear from you. Tell us which year you
+          want to help unlock and we'll find a place for you in it.
+        </p>
+
+        <a
+          href="mailto:vision@downtown.example"
+          class="reveal mt-12 inline-flex items-center gap-3 bg-primary px-6 py-4 font-mono text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-opacity hover:opacity-90"
+          style="transition-delay: 300ms"
+        >
+          Write to the vision team
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </section>
+  </article>
+</Layout>

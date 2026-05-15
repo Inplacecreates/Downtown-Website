@@ -1,0 +1,85 @@
+{
+  "order": 6,
+  "name": "Expression",
+  "tagline": "Open mics, poetry, comedy, drag. Nothing is off the table.",
+  "cardBody": "Open-mic nights, poetry, comedy, drag, the occasional reading. Nothing is off the table; everything is by appointment with the door.",
+  "problem": "Spoken-word, poetry, drag, and stand-up artists in central Kenya rotate through Nairobi for stage time. There is no Nanyuki room that books them on a published night and pays a fee. The result: emerging spoken-word and queer performers travel five hours each way for ten minutes on a mic. The audience that wants the room never gets one closer to home.",
+  "approach": "Downtown runs a published expression night with paid slots and a curated lineup. Open-mic on rotation alongside booked features. Drag, queer cabaret, and spoken-word treated as core programming, not novelty. Door policy explicit and protective: appointment, dress, behaviour, all on the published door card.",
+  "programmes": [
+    {
+      "name": "Expression night",
+      "description": "Sunday evenings (post-flagship weekend). Three booked spots and four open-mic slots. Paid features, free entry for performers' guests, door-managed crowd.",
+      "cadence": "Weekly"
+    },
+    {
+      "name": "Quarterly drag and queer cabaret",
+      "description": "Booked drag and queer cabaret quarterly. Headliner from Nairobi, two Nanyuki openers, full lighting and sound, paid fees.",
+      "cadence": "Quarterly"
+    },
+    {
+      "name": "Stand-up showcase",
+      "description": "Monthly stand-up bill. Three local comedians, one Nairobi headliner. Tape-recorded; clips returned to performers for their reels.",
+      "cadence": "Monthly"
+    },
+    {
+      "name": "Readings",
+      "description": "Quiet-evening literary readings. Local writers, published or not. Open mic for short prose.",
+      "cadence": "Bi-monthly"
+    }
+  ],
+  "outcomes": [
+    {
+      "year": "2026",
+      "target": "Expression night running. [N] performers booked. Drag and queer cabaret series live."
+    },
+    {
+      "year": "2027",
+      "target": "Stand-up monthly. Readings bi-monthly. First touring spoken-word artist hosted."
+    },
+    {
+      "year": "2028",
+      "target": "Festival week includes a poetry-and-comedy day. Recordings released as a Downtown podcast."
+    },
+    {
+      "year": "2029",
+      "target": "Co-produced spoken-word anthology released. Festival edition #1 features a queer-cabaret late."
+    },
+    {
+      "year": "2030",
+      "target": "Downtown becomes a published, paid stop on the East African spoken-word and queer cabaret circuits."
+    }
+  ],
+  "fundingNeeds": [
+    {
+      "kind": "Programme grant",
+      "label": "Feature performer fees (booked slots, expression night)",
+      "amount": "[KES 540,000 / year]",
+      "timing": "From 2026"
+    },
+    {
+      "kind": "Programme grant",
+      "label": "Quarterly drag and queer cabaret production",
+      "amount": "[KES 360,000 / year]",
+      "timing": "From 2026"
+    },
+    {
+      "kind": "Equipment",
+      "label": "Recording rig for stand-up and readings (audio, two cameras)",
+      "amount": "[KES 420,000]",
+      "timing": "Q3 2026"
+    },
+    {
+      "kind": "Opex",
+      "label": "Door staff training and venue safer-space programme",
+      "amount": "[KES 240,000 / year]",
+      "timing": "From 2026"
+    }
+  ],
+  "partners": [
+    "[Partner: Nairobi spoken-word collective]",
+    "[Partner: Drag Kenya]",
+    "[Partner: Hivos East Africa, freedom of expression grant]",
+    "[Partner: Goethe-Institut Nairobi, queer-arts mobility]"
+  ],
+  "residents": []
+}

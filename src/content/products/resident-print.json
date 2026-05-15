@@ -1,0 +1,15 @@
+{
+  "name": "Resident-edition print",
+  "category": "Print",
+  "tagline": "Limited-run print. Signed, numbered, sized for a wall you actually own.",
+  "description": "Giclee print on cotton rag, A2 format. Each edition is the wall piece from a resident's most recent quarterly rotation, released in a run of fifty. Signed and numbered by the artist on the lower right. Past editions live in the archive.",
+  "price": "[KES 6,500]",
+  "pillar": "painting",
+  "variants": [
+    { "label": "Format", "options": ["A2 print, unframed", "A2 print, ash frame"] }
+  ],
+  "imageCaption": "Resident-edition A2 print, signed lower right",
+  "image": "https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?w=1200&q=80&fit=crop&auto=format",
+  "inStock": true,
+  "featured": true
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Residency wristband",
+  "category": "Wristband",
+  "tagline": "The cheapest way in, and the loudest way out.",
+  "description": "Embossed silicone band, three colourways, one size. The wristband is also the season pass: wear it on a Wednesday and entry is free. Cycle changes per season; current band gets you in until the next launch.",
+  "price": "[KES 400]",
+  "pillar": "youth",
+  "variants": [
+    { "label": "Colour", "options": ["Bonfire", "Cream", "Ink black"] }
+  ],
+  "imageCaption": "Residency wristband, bonfire colourway, embossed text",
+  "image": "https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=1200&q=80&fit=crop&auto=format",
+  "inStock": true,
+  "featured": true
+}

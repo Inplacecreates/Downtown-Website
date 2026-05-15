@@ -1,0 +1,19 @@
+{
+  "name": "Sir Jay Surtorial",
+  "discipline": "Fashion",
+  "tagline": "Custom suits. Custom moments.",
+  "since": "2024",
+  "bio": "Sir Jay builds suits and bespoke pieces by appointment from Downtown's studio. Classic shapes, Nairobi-confident detail. Saturday-ready garments by Saturday morning; Sunday alterations by Sunday lunch.",
+  "captionHint": "Sir Jay studio portrait",
+  "image": "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1600&q=80&fit=crop&auto=format",
+  "offerings": [
+    "Custom suiting and bespoke pieces",
+    "Tailoring, alterations, repairs",
+    "Wedding parties and stage commissions",
+    "Studio appointments by request"
+  ],
+  "contact": {
+    "instagram": "@sirjaysurtorial",
+    "email": "jay@downtown.example"
+  }
+}

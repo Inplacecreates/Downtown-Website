@@ -1,8 +1,8 @@
 # Assets that may include licensed material
 assets/photos/raw/
-assets/fonts/*.otf
-assets/fonts/*.ttf
-assets/fonts/*.woff*
+# Note: Big Shoulders Display + IBM Plex Sans/Mono are OFL-licensed and
+# committed deliberately. Re-add otf/ttf/woff* ignores below only if
+# proprietary fonts are added to this repo.
 
 # Environment
 .env

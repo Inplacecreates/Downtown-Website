@@ -1,0 +1,74 @@
+---
+/*
+ * Image with placeholder fallback. If `src` is provided (Unsplash URL
+ * or local path), renders the image. Otherwise renders a captioned
+ * placeholder so the page is testable before the photo shoot lands.
+ *
+ * Polarity-aware: Smoke + Concrete in light sections, Concrete +
+ * Cream in dark sections, via Tailwind dark: variants on the
+ * placeholder.
+ *
+ * When swapping placeholders for real photos: replace the `src` with
+ * the production image URL. For Unsplash hot-linking during dev, use
+ * the format:
+ *   https://images.unsplash.com/photo-{ID}?w={width}&q=80&fit=crop&auto=format
+ * Replace with locally-hosted images before launch; do not depend on
+ * Unsplash for production traffic.
+ */
+
+interface Props {
+  /** What the image is of, e.g. "Saturday night, the bonfire". */
+  caption: string;
+  /** Aspect ratio token. */
+  aspect?: "video" | "square" | "portrait" | "wide" | "ultrawide";
+  /** Optional image URL. If provided, renders the image; otherwise the placeholder. */
+  src?: string;
+  /** Alt text override. Defaults to the caption. */
+  alt?: string;
+  class?: string;
+}
+
+const {
+  caption,
+  aspect = "video",
+  src,
+  alt,
+  class: className,
+} = Astro.props;
+
+const aspectClass = {
+  video: "aspect-video",
+  square: "aspect-square",
+  portrait: "aspect-[3/4]",
+  wide: "aspect-[2/1]",
+  ultrawide: "aspect-[3/1]",
+}[aspect];
+---
+
+{
+  src ? (
+    <figure class:list={["overflow-hidden", aspectClass, className]}>
+      <img
+        src={src}
+        alt={alt ?? caption}
+        loading="lazy"
+        decoding="async"
+        class="h-full w-full object-cover"
+      />
+    </figure>
+  ) : (
+    <figure
+      class:list={[
+        "flex items-center justify-center border bg-smoke text-concrete border-concrete/30",
+        "dark:bg-concrete dark:text-cream dark:border-cream/20",
+        aspectClass,
+        className,
+      ]}
+      aria-label={`Image placeholder: ${caption}`}
+    >
+      <figcaption class="font-mono text-xs uppercase tracking-wider">
+        [Photo: {caption}]
+      </figcaption>
+    </figure>
+  )
+}

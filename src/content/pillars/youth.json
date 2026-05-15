@@ -1,0 +1,85 @@
+{
+  "order": 4,
+  "name": "Youth",
+  "tagline": "Free entry on Wednesdays. Twenty scholarships annually from 2029.",
+  "cardBody": "Free entry on Wednesdays for under-twenty-fives. Twenty annual scholarships from 2029. Saturday matinees as Mt Kenya University students ask for them.",
+  "problem": "Young people in Nanyuki between sixteen and twenty-five face two stacked problems: thin disposable income and thin creative supply. The town has a university and two technical colleges; it has no permanent, paid creative jobs to graduate into. Existing nightlife pricing locks under-twenty-fives out of the rooms where local culture is being made.",
+  "approach": "Downtown is free on Wednesdays for anyone under twenty-five, full stop. Twenty creative scholarships annually from 2029 (a year of tuition at Mt Kenya University plus a Downtown studio placement). Saturday matinees and youth workshops scheduled responsively, not paternalistically: programme what young people ask for.",
+  "programmes": [
+    {
+      "name": "Free Wednesdays for under-25s",
+      "description": "ID at the door, no cover, full programme access. Bar runs as normal so the audience-mixing works.",
+      "cadence": "Weekly"
+    },
+    {
+      "name": "Downtown creative scholarships",
+      "description": "Twenty scholarships annually from 2029. Each covers a year of tuition at Mt Kenya University plus a paid placement inside one of the resident studios for two terms.",
+      "cadence": "Annual"
+    },
+    {
+      "name": "Saturday matinees",
+      "description": "Daytime programme aimed at under-twenty-fives. Music, dance, and visual showcases by request from the university student union.",
+      "cadence": "Monthly"
+    },
+    {
+      "name": "Youth music academy (from 2027)",
+      "description": "Wednesday afternoons. Free instrumental, vocal, and DJ classes for under-twenty-fives. Drop-in plus a structured term programme.",
+      "cadence": "Weekly, school year"
+    }
+  ],
+  "outcomes": [
+    {
+      "year": "2026",
+      "target": "Free Wednesdays operational. Average [N] under-25s on the door per week."
+    },
+    {
+      "year": "2027",
+      "target": "Youth music academy launches. Saturday matinees programmed monthly. Partnership conversations with Mt Kenya University underway."
+    },
+    {
+      "year": "2028",
+      "target": "First scholarship cohort selected (pilot of 5)."
+    },
+    {
+      "year": "2029",
+      "target": "Full scholarship programme live: 20 students placed. First festival youth-week edition."
+    },
+    {
+      "year": "2030",
+      "target": "Scholarship alumni network of [N+]; tracked outcomes on placement, retention, and onward income."
+    }
+  ],
+  "fundingNeeds": [
+    {
+      "kind": "Scholarship fund",
+      "label": "20 annual creative scholarships (tuition + placement stipend)",
+      "amount": "[KES 6,000,000 / year]",
+      "timing": "From 2029"
+    },
+    {
+      "kind": "Programme grant",
+      "label": "Free-entry Wednesdays subsidy (door fee + bar margin offset)",
+      "amount": "[KES 360,000 / year]",
+      "timing": "From 2026"
+    },
+    {
+      "kind": "Opex",
+      "label": "Youth academy teaching staff and materials",
+      "amount": "[KES 1,800,000 / year]",
+      "timing": "From 2027"
+    },
+    {
+      "kind": "Capex",
+      "label": "Youth academy classroom equipment (instruments, decks, recording)",
+      "amount": "[KES 950,000]",
+      "timing": "Q4 2026"
+    }
+  ],
+  "partners": [
+    "[Partner: Mt Kenya University, tuition agreement and student union]",
+    "[Partner: Nanyuki technical colleges]",
+    "[Partner: Mastercard Foundation Young Africa Works]",
+    "[Partner: Aga Khan Foundation East Africa]"
+  ],
+  "residents": []
+}

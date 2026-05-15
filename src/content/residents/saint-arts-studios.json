@@ -1,0 +1,19 @@
+{
+  "name": "Saint Arts Studios",
+  "discipline": "Tattoos",
+  "tagline": "By appointment. Walk-ins when the fire is out.",
+  "since": "2025",
+  "bio": "Saint Arts tattoos out of Downtown's back room. Fine line, traditional, custom flash, the occasional cover-up. Tuesday through Thursday by appointment; Sunday afternoons walk-in if the bonfire is out and the room is calm.",
+  "captionHint": "Saint Arts, work in session",
+  "image": "https://images.unsplash.com/photo-1611501275019-9b5cda994e8d?w=1600&q=80&fit=crop&auto=format",
+  "offerings": [
+    "Custom tattoo design",
+    "Monthly flash days",
+    "Touch-ups and cover-ups",
+    "Aftercare guidance and supplies"
+  ],
+  "contact": {
+    "instagram": "@saintartsstudios",
+    "email": "ink@downtown.example"
+  }
+}

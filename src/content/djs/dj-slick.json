@@ -1,0 +1,19 @@
+{
+  "name": "DJ Slick",
+  "discipline": "House · Afro House",
+  "tagline": "The room's first dance.",
+  "since": "2022",
+  "bio": "DJ Slick has been at Downtown since the bonfire was first lit. House and afro house, the kind of set that turns a quiet 9pm room into a packed midnight one. Resident, flagship headliner, and the unofficial doors-watcher when nobody else is looking.",
+  "captionHint": "DJ Slick at the booth",
+  "image": "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=1600&q=80&fit=crop&auto=format",
+  "offerings": [
+    "Saturday flagship sets",
+    "Friday warmups and B2Bs",
+    "Custom event hire",
+    "Workshops on request"
+  ],
+  "contact": {
+    "instagram": "@djslick",
+    "email": "slick@downtown.example"
+  }
+}

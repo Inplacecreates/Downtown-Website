@@ -1,0 +1,60 @@
+---
+/*
+ * Wordmark, derived from assets/logos/DT_Logo.jpg.
+ *
+ * Two stacked bars: top reads "DOWN", bottom is "TOWN" rotated 180
+ * degrees, the brand's rotational-symmetry conceit (DESIGN.md
+ * section 2). Both rects use currentColor and both text strings use
+ * var(--background), so the wordmark automatically inverts polarity
+ * (Ink bars + Cream text in :root, Cream bars + Ink text in .dark).
+ *
+ * This is a working approximation until the designer hands over the
+ * production SVG (see assets/references/CUSTOM_ASSETS.md). Use
+ * everywhere the mark is needed; never substitute with the text
+ * placeholder it replaced.
+ */
+
+interface Props {
+  class?: string;
+  ariaLabel?: string;
+}
+
+const { class: className, ariaLabel = "Downtown" } = Astro.props;
+---
+
+<svg
+  viewBox="0 0 600 360"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img"
+  aria-label={ariaLabel}
+  class:list={["block h-auto w-full", className]}
+>
+  <!-- Top bar: DOWN, reads forward -->
+  <rect x="0" y="0" width="600" height="178" fill="currentColor"></rect>
+  <text
+    x="300"
+    y="89"
+    text-anchor="middle"
+    dominant-baseline="central"
+    fill="var(--background)"
+    font-family="'Big Shoulders Display', 'Arial Narrow', sans-serif"
+    font-weight="900"
+    font-size="148"
+    letter-spacing="-1"
+    aria-hidden="true">DOWN</text>
+
+  <!-- Bottom bar: TOWN, rotated 180° around its own centre -->
+  <rect x="0" y="182" width="600" height="178" fill="currentColor"></rect>
+  <text
+    x="300"
+    y="271"
+    text-anchor="middle"
+    dominant-baseline="central"
+    fill="var(--background)"
+    font-family="'Big Shoulders Display', 'Arial Narrow', sans-serif"
+    font-weight="900"
+    font-size="148"
+    letter-spacing="-1"
+    transform="rotate(180 300 271)"
+    aria-hidden="true">TOWN</text>
+</svg>

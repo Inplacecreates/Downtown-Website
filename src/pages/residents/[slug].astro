@@ -1,0 +1,215 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import ImagePlaceholder from "../../components/ImagePlaceholder.astro";
+
+/*
+ * Resident detail page. One generated per JSON file in
+ * src/content/residents/. Page structure:
+ *   1. Full-bleed hero image
+ *   2. Identity (back link, name, discipline + since, tagline, bio)
+ *   3. Offerings (numbered list)
+ *   4. Contact (polarity flip to Ink, Instagram / email / website)
+ *
+ * Adding a new resident is a single JSON file; the route, the page,
+ * and the home-card link generate automatically.
+ */
+
+export async function getStaticPaths() {
+  const residents = await getCollection("residents");
+  return residents.map((entry) => ({
+    params: { slug: entry.id },
+    props: { resident: entry.data },
+  }));
+}
+
+interface Props {
+  resident: import("astro:content").CollectionEntry<"residents">["data"];
+}
+
+const { resident } = Astro.props as Props;
+
+const firstName = resident.name.split(" ")[0];
+
+const instagramHref =
+  resident.contact?.instagram?.startsWith("@")
+    ? `https://instagram.com/${resident.contact.instagram.slice(1)}`
+    : resident.contact?.instagram;
+
+const websiteDisplay = resident.contact?.website?.replace(/^https?:\/\//, "");
+---
+
+<Layout
+  title={`${resident.name} · Downtown`}
+  description={resident.tagline ?? `${resident.name}, ${resident.discipline}, in residence at Downtown.`}
+>
+  <article>
+    {/* Full-bleed hero image. transition:name matches the home card
+        image for a shared-element morph during view transitions. */}
+    <div class="reveal">
+      <ImagePlaceholder
+        caption={resident.captionHint}
+        aspect="wide"
+        src={resident.image}
+        transition:name={`resident-${Astro.params.slug}-image`}
+      />
+    </div>
+
+    {/* Identity */}
+    <section class="border-b border-border">
+      <div
+        class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20"
+      >
+        <a
+          href="/#in-residence"
+          class="reveal inline-flex items-center gap-2 font-mono text-sm uppercase tracking-wider text-muted-foreground transition-colors hover:text-bonfire"
+        >
+          <span aria-hidden="true">←</span>
+          In residence
+        </a>
+
+        <h1
+          class="reveal mt-8 font-display font-black uppercase tracking-tight text-[clamp(48px,9vw,128px)] leading-[0.95]"
+          style="transition-delay: 100ms"
+          transition:name={`resident-${Astro.params.slug}-name`}
+        >
+          {resident.name}
+        </h1>
+
+        <p
+          class="reveal mt-6 font-mono text-sm uppercase tracking-wider text-bonfire"
+          style="transition-delay: 200ms"
+        >
+          {resident.discipline}
+          {resident.since && (
+            <span class="text-muted-foreground">
+              · in residence since {resident.since}
+            </span>
+          )}
+        </p>
+
+        {resident.tagline && (
+          <p
+            class="reveal mt-12 max-w-prose font-display font-black uppercase tracking-tight text-[clamp(28px,4.5vw,56px)] leading-[1.05]"
+            style="transition-delay: 300ms"
+          >
+            {resident.tagline}
+          </p>
+        )}
+
+        {resident.bio && (
+          <p
+            class="reveal mt-8 max-w-prose font-sans text-lg leading-relaxed"
+            style="transition-delay: 400ms"
+          >
+            {resident.bio}
+          </p>
+        )}
+      </div>
+    </section>
+
+    {/* Offerings */}
+    {resident.offerings.length > 0 && (
+      <section class="border-b border-border">
+        <div class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20">
+          <p class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground">
+            What's on offer
+          </p>
+          <h2
+            class="reveal mt-6 font-display font-black uppercase tracking-tight text-[clamp(40px,6vw,80px)] leading-[1.0]"
+            style="transition-delay: 100ms"
+          >
+            On the bench.
+          </h2>
+          <ul class="mt-12 max-w-3xl">
+            {resident.offerings.map((offer, i) => (
+              <li
+                class="reveal flex items-baseline gap-6 border-t border-border py-5 last:border-b"
+                style={`transition-delay: ${200 + i * 80}ms`}
+              >
+                <span class="font-mono text-xs uppercase tracking-wider text-bonfire">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span class="font-display text-xl font-black uppercase tracking-tight md:text-2xl lg:text-3xl">
+                  {offer}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )}
+
+    {/* Contact (polarity flip) */}
+    {resident.contact && (
+      <section class="dark bg-background text-foreground">
+        <div class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20">
+          <p class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground">
+            Get in touch
+          </p>
+          <h2
+            class="reveal mt-6 font-display font-black uppercase tracking-tight text-[clamp(40px,6vw,80px)] leading-[1.0]"
+            style="transition-delay: 100ms"
+          >
+            Find <span class="bg-bonfire px-3 text-ink">{firstName}</span>.
+          </h2>
+
+          <ul class="reveal mt-12 flex flex-col gap-4" style="transition-delay: 200ms">
+            {instagramHref && (
+              <li>
+                <a
+                  href={instagramHref}
+                  target="_blank"
+                  rel="noopener"
+                  class="group inline-flex flex-wrap items-baseline gap-3 transition-colors hover:text-bonfire"
+                >
+                  <span class="font-display text-2xl font-black uppercase tracking-tight md:text-3xl">
+                    Instagram
+                  </span>
+                  <span class="font-mono text-sm text-muted-foreground group-hover:text-bonfire">
+                    {resident.contact.instagram}
+                  </span>
+                  <span aria-hidden="true" class="font-mono text-base">→</span>
+                </a>
+              </li>
+            )}
+            {resident.contact.email && (
+              <li>
+                <a
+                  href={`mailto:${resident.contact.email}`}
+                  class="group inline-flex flex-wrap items-baseline gap-3 transition-colors hover:text-bonfire"
+                >
+                  <span class="font-display text-2xl font-black uppercase tracking-tight md:text-3xl">
+                    Email
+                  </span>
+                  <span class="font-mono text-sm text-muted-foreground group-hover:text-bonfire">
+                    {resident.contact.email}
+                  </span>
+                  <span aria-hidden="true" class="font-mono text-base">→</span>
+                </a>
+              </li>
+            )}
+            {resident.contact.website && (
+              <li>
+                <a
+                  href={resident.contact.website}
+                  target="_blank"
+                  rel="noopener"
+                  class="group inline-flex flex-wrap items-baseline gap-3 transition-colors hover:text-bonfire"
+                >
+                  <span class="font-display text-2xl font-black uppercase tracking-tight md:text-3xl">
+                    Website
+                  </span>
+                  <span class="font-mono text-sm text-muted-foreground group-hover:text-bonfire">
+                    {websiteDisplay}
+                  </span>
+                  <span aria-hidden="true" class="font-mono text-base">→</span>
+                </a>
+              </li>
+            )}
+          </ul>
+        </div>
+      </section>
+    )}
+  </article>
+</Layout>

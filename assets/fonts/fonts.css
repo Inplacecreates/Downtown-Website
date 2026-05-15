@@ -1,0 +1,123 @@
+/*
+ * Downtown brand fonts: Big Shoulders Display + IBM Plex Sans + IBM Plex Mono
+ *
+ * Source: Google Fonts (OFL), downloaded from jsdelivr fontsource CDN, 2026-05-14.
+ * Subset: Latin only. If Kiswahili-specific characters are ever needed they
+ * are already covered by latin (no diacritics outside U+0000-00FF used in
+ * standard Kiswahili orthography).
+ *
+ * Usage in Astro:
+ *   1. Copy this directory into the project's public/fonts/ once Astro is
+ *      scaffolded, or symlink it.
+ *   2. Import this file from the root layout, for example:
+ *        <link rel="stylesheet" href="/fonts/fonts.css" />
+ *      or from global.css:
+ *        @import "../../public/fonts/fonts.css";
+ *   3. If you serve the WOFF2 files from a different path than this CSS,
+ *      update the url() values below to match.
+ *
+ * The url() values below are relative to this CSS file, which is the
+ * portable default. They resolve correctly when the CSS and the .woff2
+ * files live in the same directory.
+ */
+
+/* Big Shoulders Display: marquee, hero, h1, h2 */
+
+@font-face {
+  font-family: "Big Shoulders Display";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("./big-shoulders-display-700.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Big Shoulders Display";
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url("./big-shoulders-display-900.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* IBM Plex Sans: body, h3, small */
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./ibm-plex-sans-400.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("./ibm-plex-sans-500.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("./ibm-plex-sans-600.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* IBM Plex Mono: times, dates, ticket numbers, structured data */
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./ibm-plex-mono-400.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("./ibm-plex-mono-500.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/*
+ * Tailwind v4 theme tokens to pair with these faces.
+ * Copy into the project's global.css once Astro is scaffolded:
+ *
+ *   @import "tailwindcss";
+ *
+ *   @theme {
+ *     --font-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+ *     --font-sans: "IBM Plex Sans", system-ui, sans-serif;
+ *     --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+ *   }
+ *
+ * After that, use the families in markup with utility classes:
+ *   class="font-display"  for headings and marquee
+ *   class="font-sans"     for body (default)
+ *   class="font-mono"     for times and structured data
+ */

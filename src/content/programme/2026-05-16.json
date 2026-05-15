@@ -1,0 +1,10 @@
+{
+  "date": "Sat 16 May",
+  "lineup": [
+    { "name": "DJ Slick", "slug": "dj-slick" },
+    { "name": "DJ 2Face", "slug": "dj-2face" },
+    { "name": "DJ Schoolboy", "slug": "dj-schoolboy" }
+  ],
+  "info": "Doors 8pm · Bonfire from 9",
+  "flagship": true
+}

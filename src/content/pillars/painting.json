@@ -1,0 +1,84 @@
+{
+  "order": 5,
+  "name": "Painting",
+  "tagline": "McBull's studio. Commissions, mentors, the occasional open weekend.",
+  "cardBody": "McBull's studio runs commissions, mentors, and the occasional open weekend. The gallery wall is rotated by the residents every quarter.",
+  "problem": "Painting in Kenya outside Nairobi is studio-less. Painters work from bedrooms and back porches; their canvases dry on neighbours' walls; their pricing is set by tourist galleries that take half. There is no infrastructure for mid-career painters to take on apprentices, no public-facing wall they control, no studio they can lock at the end of the day.",
+  "approach": "McBull's painting studio on the Downtown courtyard. Permanent dedicated space, year-round access, climate-controlled storage. Apprentices placed on six-month rotations. The gallery wall in the main room is curated by the painting residents every quarter and is the only one that explicitly sells.",
+  "programmes": [
+    {
+      "name": "Painting studio in residence",
+      "description": "McBull's permanent studio in the courtyard. Dedicated space, storage, lights, ventilation. Open to the public on quarterly open-studio weekends.",
+      "cadence": "Year-round"
+    },
+    {
+      "name": "Apprenticeship rotations",
+      "description": "Two apprentices placed in the studio per six-month rotation. Stipend covered, daily access, mentor sessions weekly.",
+      "cadence": "Twice a year"
+    },
+    {
+      "name": "Gallery wall (sales)",
+      "description": "The main-room wall is a working sales wall. Resident-curated rotation every quarter. Prices on the door. Gallery margin to the artist.",
+      "cadence": "Quarterly"
+    },
+    {
+      "name": "Open-weekend studio visits",
+      "description": "Twice a year the studio opens to the public for one weekend. Demos, commissions discussed, work on the walls.",
+      "cadence": "Twice a year"
+    }
+  ],
+  "outcomes": [
+    {
+      "year": "2026",
+      "target": "Painting studio fully operational. First apprenticeship cohort placed. Four wall rotations completed."
+    },
+    {
+      "year": "2027",
+      "target": "Second wall opens (second gallery space). Apprenticeship doubled to four placements."
+    },
+    {
+      "year": "2028",
+      "target": "Permanent-collection acquisitions begin: Downtown buys one work per quarter from the wall."
+    },
+    {
+      "year": "2029",
+      "target": "Festival visual-week dedicated painting exhibition. Co-curated with [Partner: Nairobi gallery]."
+    },
+    {
+      "year": "2030",
+      "target": "Permanent Downtown painting collection of [N] works on rotating public display."
+    }
+  ],
+  "fundingNeeds": [
+    {
+      "kind": "Capex",
+      "label": "Painting studio upgrade (ventilation, climate control, lighting rig)",
+      "amount": "[KES 850,000]",
+      "timing": "Q2 2026"
+    },
+    {
+      "kind": "Opex",
+      "label": "Apprenticeship stipends (four placements / year)",
+      "amount": "[KES 720,000 / year]",
+      "timing": "From 2026"
+    },
+    {
+      "kind": "Programme grant",
+      "label": "Permanent-collection acquisition budget",
+      "amount": "[KES 800,000 / year]",
+      "timing": "From 2028"
+    },
+    {
+      "kind": "Equipment",
+      "label": "Studio supplies and consumables (canvas, paint, primer)",
+      "amount": "[KES 180,000 / year]",
+      "timing": "From 2026"
+    }
+  ],
+  "partners": [
+    "[Partner: Nairobi gallery for co-curated shows]",
+    "[Partner: Kenya Society of Painters]",
+    "[Partner: Alliance Francaise Nairobi]"
+  ],
+  "residents": ["McBull Studios"]
+}

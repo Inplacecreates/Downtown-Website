@@ -1,0 +1,527 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import ImagePlaceholder from "../../components/ImagePlaceholder.astro";
+
+/*
+ * Pillar detail page. One generated per JSON file in
+ * src/content/pillars/. Treats each pillar as a grant-prospectus-
+ * shaped case document for that creative lane:
+ *
+ *   1. Hero: pillar number, name, tagline.
+ *   2. The problem (Nanyuki / Kenya context).
+ *   3. Our approach (theory of change).
+ *   4. Programmes: the named activities.
+ *   5. Outcomes 2026-2030: year-by-year targets.
+ *   6. Funding needs: typed, with [bracketed] placeholder amounts.
+ *   7. Partners.
+ *   8. In residence (resident names; will cross-link to /residents
+ *      and /djs once those slugs are wired across the collections).
+ *   9. Pillar navigation + get-involved CTA.
+ *
+ * Polarity flips alternate light/dark to keep a long page legible.
+ * Bracketed amounts ([KES n]) signal "fill before publishing" so
+ * nothing accidentally reads as a real claim while the page is
+ * still in placeholder mode.
+ */
+
+export async function getStaticPaths() {
+  const pillars = await getCollection("pillars");
+  const ordered = [...pillars].sort((a, b) => a.data.order - b.data.order);
+  const allProducts = await getCollection("products");
+  return ordered.map((entry, i) => {
+    const prev = ordered[(i - 1 + ordered.length) % ordered.length];
+    const next = ordered[(i + 1) % ordered.length];
+    /* Products that fund this pillar. Filtered at build time so
+       the page renders static; no runtime collection access. */
+    const products = allProducts
+      .filter((p) => p.data.pillar === entry.id)
+      .map((p) => ({ slug: p.id, ...p.data }));
+    return {
+      params: { slug: entry.id },
+      props: {
+        pillar: entry.data,
+        prev: { slug: prev.id, name: prev.data.name },
+        next: { slug: next.id, name: next.data.name },
+        total: ordered.length,
+        products,
+      },
+    };
+  });
+}
+
+interface ProductRef {
+  slug: string;
+  name: string;
+  category: string;
+  tagline: string;
+  price: string;
+  pillar: string;
+  imageCaption: string;
+  image?: string;
+}
+
+interface Props {
+  pillar: import("astro:content").CollectionEntry<"pillars">["data"];
+  prev: { slug: string; name: string };
+  next: { slug: string; name: string };
+  total: number;
+  products: ProductRef[];
+}
+
+const { pillar, prev, next, total, products } = Astro.props as Props;
+
+const orderLabel = `${String(pillar.order).padStart(2, "0")} / ${String(total).padStart(2, "0")}`;
+
+/*
+ * Group funding asks by kind so the readers (grant officers,
+ * board members) can scan for the line item they care about.
+ * Object.groupBy is widely supported in modern engines but Astro's
+ * SSR runs the page at build time on Node 22, so this is safe.
+ */
+const fundingByKind = Object.groupBy(pillar.fundingNeeds, (n) => n.kind) as Record<
+  string,
+  typeof pillar.fundingNeeds
+>;
+const fundingKinds = Object.keys(fundingByKind);
+---
+
+<Layout
+  title={`${pillar.name} · A pillar of Downtown`}
+  description={pillar.tagline}
+>
+  <article>
+    {/* Hero */}
+    <section class="border-b border-border">
+      <div
+        class="mx-auto max-w-[1440px] px-6 pt-24 md:px-12 md:pt-32 lg:px-20 lg:pt-40"
+      >
+        <a
+          href="/vision#pillars"
+          class="reveal inline-flex items-center gap-2 font-mono text-sm uppercase tracking-wider text-muted-foreground transition-colors hover:text-bonfire"
+        >
+          <span aria-hidden="true">←</span>
+          The pillars
+        </a>
+
+        <p
+          class="reveal mt-10 font-mono text-sm uppercase tracking-wider text-bonfire"
+          style="transition-delay: 100ms"
+        >
+          Pillar {orderLabel}
+        </p>
+        <h1
+          class="reveal mt-6 font-display font-black uppercase tracking-tight text-[clamp(48px,9vw,128px)] leading-[0.95]"
+          style="transition-delay: 150ms"
+        >
+          <span class="bg-bonfire px-3 text-ink">{pillar.name}</span>.
+        </h1>
+        <p
+          class="reveal mt-8 max-w-prose font-sans text-xl leading-relaxed"
+          style="transition-delay: 250ms"
+        >
+          {pillar.tagline}
+        </p>
+
+        <div
+          class="reveal mt-20 border-t border-border md:mt-28"
+          style="transition-delay: 400ms"
+        />
+      </div>
+    </section>
+
+    {/* The problem (polarity flip) */}
+    <section class="dark border-b border-border bg-background text-foreground">
+      <div
+        class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20"
+      >
+        <div class="grid gap-10 md:grid-cols-12 md:gap-16">
+          <div class="md:col-span-4">
+            <p
+              class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+            >
+              01. The problem
+            </p>
+            <h2
+              class="reveal mt-6 font-display text-3xl font-black uppercase tracking-tight md:text-5xl"
+              style="transition-delay: 100ms"
+            >
+              The gap.
+            </h2>
+          </div>
+          <p
+            class="reveal max-w-prose font-sans text-lg leading-relaxed md:col-span-8 md:text-xl"
+            style="transition-delay: 200ms"
+          >
+            {pillar.problem}
+          </p>
+        </div>
+      </div>
+    </section>
+
+    {/* Our approach */}
+    <section class="border-b border-border">
+      <div
+        class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20"
+      >
+        <div class="grid gap-10 md:grid-cols-12 md:gap-16">
+          <div class="md:col-span-4">
+            <p
+              class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+            >
+              02. Our approach
+            </p>
+            <h2
+              class="reveal mt-6 font-display text-3xl font-black uppercase tracking-tight md:text-5xl"
+              style="transition-delay: 100ms"
+            >
+              How we close it.
+            </h2>
+          </div>
+          <p
+            class="reveal max-w-prose font-sans text-lg leading-relaxed md:col-span-8 md:text-xl"
+            style="transition-delay: 200ms"
+          >
+            {pillar.approach}
+          </p>
+        </div>
+      </div>
+    </section>
+
+    {/* Programmes */}
+    <section class="border-b border-border">
+      <div
+        class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20"
+      >
+        <p
+          class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+        >
+          03. Programmes
+        </p>
+        <h2
+          class="reveal mt-6 font-display text-3xl font-black uppercase tracking-tight md:text-5xl"
+          style="transition-delay: 100ms"
+        >
+          What we run.
+        </h2>
+
+        <ol class="mt-16 grid gap-px bg-border md:grid-cols-2">
+          {
+            pillar.programmes.map((p, i) => (
+              <li
+                class="reveal flex flex-col bg-background p-8 md:p-10"
+                style={`transition-delay: ${200 + i * 80}ms`}
+              >
+                <span class="font-mono text-xs uppercase tracking-wider text-bonfire">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <h3 class="mt-4 font-display text-2xl font-black uppercase leading-tight tracking-tight md:text-3xl">
+                  {p.name}
+                </h3>
+                <p class="mt-4 max-w-prose font-sans text-base leading-relaxed">
+                  {p.description}
+                </p>
+                {p.cadence && (
+                  <p class="mt-6 border-t border-border pt-4 font-mono text-xs uppercase tracking-wider text-muted-foreground">
+                    Cadence · {p.cadence}
+                  </p>
+                )}
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    {/* Outcomes 2026-2030 (polarity flip) */}
+    <section class="dark border-b border-border bg-background text-foreground">
+      <div
+        class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20"
+      >
+        <p
+          class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+        >
+          04. Outcomes 2026 - 2030
+        </p>
+        <h2
+          class="reveal mt-6 font-display text-3xl font-black uppercase tracking-tight md:text-5xl"
+          style="transition-delay: 100ms"
+        >
+          What we will deliver.
+        </h2>
+        <p
+          class="reveal mt-6 max-w-prose font-sans text-lg leading-relaxed"
+          style="transition-delay: 200ms"
+        >
+          Year-by-year, measurable. Progress is published every
+          quarter on the public scorecard.
+        </p>
+
+        <ol class="mt-16 divide-y divide-border border-y border-border">
+          {
+            pillar.outcomes.map((o, i) => (
+              <li
+                class="reveal grid gap-4 py-8 md:grid-cols-12 md:items-baseline md:gap-10"
+                style={`transition-delay: ${150 + i * 60}ms`}
+              >
+                <p class="font-mono text-sm uppercase tracking-wider text-bonfire md:col-span-2">
+                  {o.year}
+                </p>
+                <p class="font-sans text-lg leading-relaxed md:col-span-10">
+                  {o.target}
+                </p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    {/* Funding needs */}
+    <section class="border-b border-border">
+      <div
+        class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20"
+      >
+        <p
+          class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+        >
+          05. Funding needs
+        </p>
+        <h2
+          class="reveal mt-6 font-display text-3xl font-black uppercase tracking-tight md:text-5xl"
+          style="transition-delay: 100ms"
+        >
+          What this costs.
+        </h2>
+        <p
+          class="reveal mt-6 max-w-prose font-sans text-lg leading-relaxed"
+          style="transition-delay: 200ms"
+        >
+          Asks grouped by category. Bracketed amounts are
+          placeholders pending finalised budgets; current figures
+          available on request.
+        </p>
+
+        <div class="mt-16 space-y-12">
+          {
+            fundingKinds.map((kind) => (
+              <div class="reveal">
+                <h3 class="font-mono text-sm uppercase tracking-wider text-bonfire">
+                  {kind}
+                </h3>
+                <ol class="mt-4 divide-y divide-border border-y border-border">
+                  {fundingByKind[kind].map((n) => (
+                    <li class="grid gap-2 py-5 md:grid-cols-12 md:items-baseline md:gap-6">
+                      <p class="font-display text-lg font-black uppercase tracking-tight md:col-span-7 md:text-xl">
+                        {n.label}
+                      </p>
+                      <p class="font-mono text-base text-bonfire md:col-span-3">
+                        {n.amount}
+                      </p>
+                      <p class="font-mono text-xs uppercase tracking-wider text-muted-foreground md:col-span-2 md:text-right">
+                        {n.timing ?? ""}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    {/* Partners */}
+    {pillar.partners.length > 0 && (
+      <section class="dark border-b border-border bg-background text-foreground">
+        <div
+          class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20"
+        >
+          <p
+            class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+          >
+            06. Partners
+          </p>
+          <h2
+            class="reveal mt-6 font-display text-3xl font-black uppercase tracking-tight md:text-5xl"
+            style="transition-delay: 100ms"
+          >
+            Who we work with.
+          </h2>
+          <p
+            class="reveal mt-6 max-w-prose font-sans text-lg leading-relaxed"
+            style="transition-delay: 200ms"
+          >
+            Bracketed entries are partnerships in development.
+            Existing partnerships are listed without brackets and
+            include a contact letter on file.
+          </p>
+
+          <ul class="mt-12 flex flex-wrap gap-3">
+            {pillar.partners.map((p) => (
+              <li class="reveal border border-border px-4 py-3 font-mono text-sm uppercase tracking-wider">
+                {p}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )}
+
+    {/* In residence */}
+    {pillar.residents.length > 0 && (
+      <section class="border-b border-border">
+        <div
+          class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20"
+        >
+          <p
+            class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+          >
+            07. In residence
+          </p>
+          <h2
+            class="reveal mt-6 font-display text-3xl font-black uppercase tracking-tight md:text-5xl"
+            style="transition-delay: 100ms"
+          >
+            Who runs this lane.
+          </h2>
+
+          <ul class="reveal mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {pillar.residents.map((r) => (
+              <li class="font-display text-xl font-black uppercase tracking-tight md:text-2xl">
+                {r}
+              </li>
+            ))}
+          </ul>
+
+          <a
+            href="/community"
+            class="reveal mt-10 inline-flex items-center gap-2 font-mono text-sm uppercase tracking-wider text-muted-foreground transition-colors hover:text-bonfire"
+          >
+            <span>Full community page</span>
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </section>
+    )}
+
+    {/* Merch that funds this lane. Only rendered when at least
+        one product is tagged to this pillar; otherwise the section
+        is suppressed entirely. */}
+    {products.length > 0 && (
+      <section class="border-b border-border">
+        <div
+          class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20"
+        >
+          <p
+            class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+          >
+            08. Merch that funds this lane
+          </p>
+          <h2
+            class="reveal mt-6 font-display text-3xl font-black uppercase tracking-tight md:text-5xl"
+            style="transition-delay: 100ms"
+          >
+            Wear the work.
+          </h2>
+          <p
+            class="reveal mt-6 max-w-prose font-sans text-lg leading-relaxed"
+            style="transition-delay: 200ms"
+          >
+            Every order against these items funds the {pillar.name.toLowerCase()} programme directly. Tap a product to order on WhatsApp; the full shop sits at <a href="/shop" class="underline underline-offset-4 hover:text-bonfire">/shop</a>.
+          </p>
+
+          <ul class="mt-12 grid gap-8 md:grid-cols-2 md:gap-10 lg:grid-cols-3 lg:gap-12">
+            {
+              products.map((p, i) => (
+                <li
+                  class="reveal"
+                  style={`transition-delay: ${250 + i * 80}ms`}
+                >
+                  <a href="/shop" class="group flex flex-col">
+                    <ImagePlaceholder
+                      caption={p.imageCaption}
+                      aspect="square"
+                      src={p.image}
+                    />
+                    <p class="mt-4 font-mono text-xs uppercase tracking-wider text-muted-foreground">
+                      {p.category}
+                    </p>
+                    <h3 class="mt-2 font-display text-xl font-black uppercase leading-tight tracking-tight transition-colors group-hover:text-bonfire md:text-2xl">
+                      {p.name}
+                    </h3>
+                    <p class="mt-2 font-mono text-base text-bonfire">
+                      {p.price}
+                    </p>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </section>
+    )}
+
+    {/* Pillar navigation + CTA (polarity flip) */}
+    <section class="dark bg-background text-foreground">
+      <div
+        class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20"
+      >
+        <nav class="grid gap-8 md:grid-cols-2 md:gap-12" aria-label="Pillar navigation">
+          <a
+            href={`/pillars/${prev.slug}`}
+            class="reveal group block border-t-2 border-border pt-6 transition-colors hover:border-bonfire"
+          >
+            <p class="font-mono text-xs uppercase tracking-wider text-muted-foreground transition-colors group-hover:text-bonfire">
+              ← Previous pillar
+            </p>
+            <p class="mt-3 font-display text-2xl font-black uppercase tracking-tight md:text-3xl">
+              {prev.name}
+            </p>
+          </a>
+          <a
+            href={`/pillars/${next.slug}`}
+            class="reveal group block border-t-2 border-border pt-6 transition-colors hover:border-bonfire md:text-right"
+          >
+            <p class="font-mono text-xs uppercase tracking-wider text-muted-foreground transition-colors group-hover:text-bonfire">
+              Next pillar →
+            </p>
+            <p class="mt-3 font-display text-2xl font-black uppercase tracking-tight md:text-3xl">
+              {next.name}
+            </p>
+          </a>
+        </nav>
+
+        <div class="mt-20 border-t border-border pt-16 md:mt-28 md:pt-20">
+          <p
+            class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+          >
+            Get involved
+          </p>
+          <h2
+            class="reveal mt-6 font-display font-black uppercase tracking-tight text-[clamp(36px,6vw,72px)] leading-[1.0]"
+            style="transition-delay: 100ms"
+          >
+            Fund this pillar.
+          </h2>
+          <p
+            class="reveal mt-6 max-w-prose font-sans text-lg leading-relaxed"
+            style="transition-delay: 200ms"
+          >
+            Full budgets, multi-year plans, and partnership briefs
+            available on request. Reach the team for a conversation
+            about supporting this lane.
+          </p>
+          <a
+            href="mailto:hello@downtown.example"
+            class="reveal mt-10 inline-flex items-center gap-3 bg-bonfire px-6 py-4 font-mono text-sm uppercase tracking-wider text-ink transition-opacity hover:opacity-90"
+            style="transition-delay: 300ms"
+          >
+            <span>Talk to the team</span>
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </article>
+</Layout>

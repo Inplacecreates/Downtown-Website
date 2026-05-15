@@ -1,0 +1,7 @@
+# Downtown, Nanyuki
+# Replace the Sitemap URL with the production domain before launch.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://downtown.example/sitemap.xml

@@ -1,0 +1,253 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ImagePlaceholder from "../components/ImagePlaceholder.astro";
+import { getCollection } from "astro:content";
+
+/*
+ * /community page. The seven pillars from /vision, populated with
+ * the actual residents and DJs working in each lane. The mapping is
+ * hardcoded here because residents and DJs only belong to one or two
+ * pillars and the assignment is editorial.
+ *
+ * Two pillars (Dance, Youth) have no people attached today; they
+ * show a placeholder note so the page reads as "this is what we're
+ * hiring or programming for" rather than "this is empty."
+ */
+
+const residents = await getCollection("residents");
+const djs = await getCollection("djs");
+
+const residentBySlug = (slug: string) =>
+  residents.find((r) => r.id === slug);
+const djBySlug = (slug: string) => djs.find((d) => d.id === slug);
+
+interface PillarMap {
+  name: string;
+  body: string;
+  residents: string[];
+  djs: string[];
+  placeholder?: string;
+}
+
+const pillarMap: PillarMap[] = [
+  {
+    name: "Music",
+    body: "The DJs and the room they play to. Six nights a week, all year.",
+    residents: [],
+    djs: ["dj-slick", "dj-2face", "dj-schoolboy"],
+  },
+  {
+    name: "Art",
+    body: "Studios with brushes, lenses, needles, machines. Visible on the big nights, working through the quiet ones.",
+    residents: [
+      "sir-jay-surtorial",
+      "bonoqqo-studios",
+      "saint-arts-studios",
+      "mcbull-studios",
+    ],
+    djs: [],
+  },
+  {
+    name: "Painting",
+    body: "Wood, paint, surface, finish. Done by hand by the in-house workshop.",
+    residents: ["mcbull-studios"],
+    djs: [],
+  },
+  {
+    name: "Expression",
+    body: "Bodies, voices, ink, words. Whatever the room calls for that the bar can't pour.",
+    residents: ["saint-arts-studios", "sir-jay-surtorial"],
+    djs: [],
+  },
+  {
+    name: "Stage",
+    body: "Where the audience sees the work happen live. The whole room is the stage on Saturdays.",
+    residents: [],
+    djs: ["dj-slick", "dj-2face", "dj-schoolboy"],
+  },
+  {
+    name: "Dance",
+    body: "Wednesdays now, the studio opening in 2027, the floor every Saturday.",
+    residents: [],
+    djs: [],
+    placeholder: "Hiring a dance lead in 2027",
+  },
+  {
+    name: "Youth",
+    body: "Free Wednesdays for under-twenty-fives today. Twenty annual scholarships from 2029.",
+    residents: [],
+    djs: [],
+    placeholder: "Programme, not people",
+  },
+];
+---
+
+<Layout
+  title="The community · Downtown"
+  description="The people building Downtown: residents and DJs grouped by the lanes they work in."
+>
+  <article>
+    {/* Hero */}
+    <section class="border-b border-border">
+      <div
+        class="mx-auto max-w-[1440px] px-6 pt-24 md:px-12 md:pt-32 lg:px-20 lg:pt-40"
+      >
+        <p
+          class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+        >
+          The community
+        </p>
+        <h1
+          class="reveal mt-6 font-display font-black uppercase tracking-tight text-[clamp(48px,9vw,128px)] leading-[1.1]"
+          style="transition-delay: 100ms"
+        >
+          The people building <span class="bg-bonfire box-decoration-clone px-3 text-ink">Downtown</span>.
+        </h1>
+        <p
+          class="reveal mt-8 max-w-prose font-sans text-xl leading-relaxed"
+          style="transition-delay: 200ms"
+        >
+          Four creative studios. Three resident DJs. A dance lead and
+          a youth lead to come. Mapped to the seven pillars from
+          <a href="/vision" class="underline underline-offset-4 hover:text-bonfire">the vision page</a>.
+        </p>
+      </div>
+
+      <div
+        class="reveal mt-20 border-t border-border md:mt-28"
+        style="transition-delay: 300ms"
+      />
+    </section>
+
+    {/* Pillars with people */}
+    <section>
+      {
+        pillarMap.map((pillar, pIndex) => {
+          const pillarResidents = pillar.residents
+            .map(residentBySlug)
+            .filter(Boolean);
+          const pillarDjs = pillar.djs.map(djBySlug).filter(Boolean);
+          const hasPeople = pillarResidents.length > 0 || pillarDjs.length > 0;
+
+          return (
+            <div class="border-b border-border">
+              <div class="mx-auto max-w-[1440px] px-6 py-16 md:px-12 md:py-20 lg:px-20">
+                <div class="grid gap-8 md:grid-cols-3 md:gap-16">
+                  <div class="md:sticky md:top-12 md:self-start">
+                    <p class="reveal font-mono text-sm uppercase tracking-wider text-bonfire">
+                      {String(pIndex + 1).padStart(2, "0")} · Pillar
+                    </p>
+                    <h2 class="reveal mt-3 font-display text-4xl font-black uppercase leading-tight tracking-tight md:text-5xl" style="transition-delay: 100ms">
+                      {pillar.name}.
+                    </h2>
+                    <p class="reveal mt-4 font-sans text-base leading-relaxed text-muted-foreground" style="transition-delay: 200ms">
+                      {pillar.body}
+                    </p>
+                  </div>
+
+                  <div class="md:col-span-2">
+                    {hasPeople ? (
+                      <div class="grid gap-6 sm:grid-cols-2 md:gap-8">
+                        {pillarResidents.map((resident, i) => (
+                          <a
+                            href={`/residents/${resident!.id}`}
+                            class="reveal group block transition-[transform,opacity] duration-200 ease-out hover:-translate-y-1 hover:opacity-95"
+                            style={`transition-delay: ${300 + i * 100}ms`}
+                          >
+                            <ImagePlaceholder
+                              caption={resident!.data.captionHint}
+                              aspect="square"
+                              src={resident!.data.image}
+                            />
+                            <div class="bg-ink px-5 py-4">
+                              <p class="font-display text-xl font-black uppercase leading-none tracking-tight text-cream md:text-2xl">
+                                {resident!.data.name}
+                              </p>
+                            </div>
+                            <div class="bg-cream border border-t-0 border-concrete/30 px-5 py-2">
+                              <p class="font-mono text-xs uppercase tracking-wider text-concrete transition-colors group-hover:text-bonfire">
+                                {resident!.data.discipline}
+                                <span aria-hidden="true" class="ml-1">→</span>
+                              </p>
+                            </div>
+                          </a>
+                        ))}
+
+                        {pillarDjs.map((dj, i) => (
+                          <a
+                            href={`/djs/${dj!.id}`}
+                            class="reveal group block transition-[transform,opacity] duration-200 ease-out hover:-translate-y-1 hover:opacity-95"
+                            style={`transition-delay: ${300 + (pillarResidents.length + i) * 100}ms`}
+                          >
+                            <ImagePlaceholder
+                              caption={dj!.data.captionHint}
+                              aspect="square"
+                              src={dj!.data.image}
+                            />
+                            <div class="bg-ink px-5 py-4">
+                              <p class="font-display text-xl font-black uppercase leading-none tracking-tight text-cream md:text-2xl">
+                                {dj!.data.name}
+                              </p>
+                            </div>
+                            <div class="bg-cream border border-t-0 border-concrete/30 px-5 py-2">
+                              <p class="font-mono text-xs uppercase tracking-wider text-concrete transition-colors group-hover:text-bonfire">
+                                {dj!.data.discipline}
+                                <span aria-hidden="true" class="ml-1">→</span>
+                              </p>
+                            </div>
+                          </a>
+                        ))}
+                      </div>
+                    ) : (
+                      <div class="reveal flex h-full items-center border border-dashed border-concrete/40 px-6 py-12" style="transition-delay: 300ms">
+                        <p class="font-mono text-xs uppercase tracking-wider text-muted-foreground">
+                          {pillar.placeholder}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })
+      }
+    </section>
+
+    {/* CTA: Join */}
+    <section class="dark bg-background text-foreground">
+      <div
+        class="mx-auto max-w-[1440px] px-6 py-20 md:px-12 md:py-28 lg:px-20"
+      >
+        <p
+          class="reveal font-mono text-sm uppercase tracking-wider text-muted-foreground"
+        >
+          Want a lane?
+        </p>
+        <h2
+          class="reveal mt-6 font-display font-black uppercase tracking-tight text-[clamp(40px,6vw,80px)] leading-[1.0]"
+          style="transition-delay: 100ms"
+        >
+          We're <span class="bg-bonfire px-3 text-ink">hiring</span> dance, youth, and stage.
+        </h2>
+        <p
+          class="reveal mt-8 max-w-prose font-sans text-lg leading-relaxed"
+          style="transition-delay: 200ms"
+        >
+          The empty pillars above are where we're recruiting. If you
+          teach dance, run youth programmes, or produce live
+          performance, write to the vision team.
+        </p>
+
+        <a
+          href="mailto:vision@downtown.example"
+          class="reveal mt-12 inline-flex items-center gap-3 bg-primary px-6 py-4 font-mono text-sm font-semibold uppercase tracking-wider text-primary-foreground transition-opacity hover:opacity-90"
+          style="transition-delay: 300ms"
+        >
+          Apply to join
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </section>
+  </article>
+</Layout>

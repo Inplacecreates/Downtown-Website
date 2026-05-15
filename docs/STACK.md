@@ -2,11 +2,12 @@
 
 **Client:** Vin
 **Started:** 2026-05-14
-**Status:** Stack not yet chosen
+**Status:** Stack locked 2026-05-14: Astro 5 + Tailwind v4 + shadcn New York. See the Stack decision section at the bottom for the full record.
 
-This file captures the context Claude needs to recommend a tech stack.
-Fill in what you know, leave the rest blank, then start a Claude Code
-session. Claude will walk you through the decision.
+This file captured the context for the stack decision walk-through.
+The discovery form below was largely answered verbally rather than
+filled in; the binding record is the Stack decision section at the
+bottom and `docs/DESIGN.md` section 1 (audience and brand essence).
 
 ---
 
@@ -131,10 +132,44 @@ Sites or apps you want this to NOT feel like:
 
 ---
 
-## Stack decision (filled in after first Claude session)
+## Stack decision
 
-**Date locked:**
-**Chosen stack:**
-**Reasoning:**
+**Date locked:** 2026-05-14
+
+**Chosen stack:** Astro 5 (TypeScript strict) with Tailwind v4 via
+`@tailwindcss/vite` (Vite plugin path, not the legacy `@astrojs/tailwind`
+integration), shadcn New York style (config only at this stage,
+components added on demand), Motion (formerly Framer Motion) with
+`LazyMotion` available but used sparingly, fonts self-hosted as
+WOFF2 in `assets/fonts/` (Big Shoulders Display + IBM Plex Sans +
+IBM Plex Mono, all OFL-licensed), programme stored in an Astro
+content collection at `src/content/programme/`.
+
+**Reasoning:** Downtown is a marketing-and-listings site with one
+primary action (follow on Instagram) and a small but growing weekly
+programme. Astro's static-first model with React islands matches
+the audience profile (Nanyuki locals, Nairobi weekenders, NGO and
+military expats, tourists on 3G) and ships minimal JS where it does
+not earn its weight. The content collection gives a clean workflow
+for updating nights without code changes. Tailwind v4 + shadcn give
+brand-token integration with deferred component cost.
+
 **Alternatives considered:**
-**Why those were not chosen:**
+
+1. Next.js 15 with shadcn. Same React-ecosystem benefits but
+   server-rendered by default, which is overkill for content that
+   is essentially static plus one external CTA. Would have shipped
+   more JS for the same visible result.
+2. SvelteKit. Smaller ecosystem, no first-party shadcn equivalent,
+   harder to find local developers comfortable with it. Strong
+   technically but operationally weaker for handover.
+3. Eleventy or Hugo (pure static generators). Lighter still than
+   Astro, but lacking the React-island escape hatch we will want
+   for the few interactive moments to come (modals, ticketing
+   forms, possibly signup).
+
+**Why those were not chosen:** Astro's island architecture is the
+right midpoint between "framework-heavy" and "no framework at all":
+static by default, JS only where it pays back. The audience cannot
+afford a heavy framework, the venue's team cannot afford a niche
+one. Astro is the operationally honest pick.

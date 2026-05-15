@@ -1,0 +1,85 @@
+{
+  "order": 1,
+  "name": "Music",
+  "tagline": "Six nights, three resident DJs, one bonfire.",
+  "cardBody": "Six nights a week. Three resident DJs. Headliners on Saturdays. The bonfire is the soundtrack until midnight.",
+  "problem": "Nanyuki has no permanent live-music venue and no contracted-residency programme for working DJs. Local musicians who want to make a career travel to Nairobi or Mombasa and rarely come back. The town's audience is starved of the bands, DJs, and producers that Nairobi already takes for granted. Without a stage that pays and a calendar that publishes, the local music economy stays informal and seasonal.",
+  "approach": "Downtown books, pays, and programmes six nights of music a week. Three resident DJs are on contract; the calendar is published a month ahead; Saturday is the flagship night. A monthly Nanyuki-to-Nairobi exchange brings a Nairobi name up and sends a resident down, building real touring relationships rather than one-off guest spots. The bonfire pulls the audience past the bar and into the room.",
+  "programmes": [
+    {
+      "name": "Resident DJ programme",
+      "description": "Three contracted residents cover Tuesday through Friday plus alternate Sundays. Each resident has a published night and a fee schedule. Annual renewal review.",
+      "cadence": "Weekly, all year"
+    },
+    {
+      "name": "Saturday flagship",
+      "description": "Booked headliner if available, residents otherwise. Bonfire-led entry from sunset, lineup goes live by Thursday lunchtime.",
+      "cadence": "Weekly"
+    },
+    {
+      "name": "Nanyuki-Nairobi DJ exchange",
+      "description": "One Nairobi guest comes up per month; one Downtown resident plays a Nairobi room. Travel, fee, and overnight covered both ways.",
+      "cadence": "Monthly"
+    },
+    {
+      "name": "Open decks",
+      "description": "Tuesday afternoon slot for emerging DJs. Free entry to play, equipment supplied, the room is open to walk-in audience.",
+      "cadence": "Weekly"
+    }
+  ],
+  "outcomes": [
+    {
+      "year": "2026",
+      "target": "50+ programmed nights. Three resident DJ contracts in place. First four exchanges completed."
+    },
+    {
+      "year": "2027",
+      "target": "100+ programmed nights. Drum kit always set up. Open decks running weekly. Five resident DJs."
+    },
+    {
+      "year": "2028",
+      "target": "Main stage operational at 2,000 capacity. International headliner pipeline open."
+    },
+    {
+      "year": "2029",
+      "target": "First Downtown Creative Festival music edition (one week, free entry)."
+    },
+    {
+      "year": "2030",
+      "target": "International artist-in-residence programme: two guests per quarter."
+    }
+  ],
+  "fundingNeeds": [
+    {
+      "kind": "Opex",
+      "label": "Resident DJ salaries and weekly night fees",
+      "amount": "[KES 4,800,000 / year]",
+      "timing": "From 2026, recurring"
+    },
+    {
+      "kind": "Equipment",
+      "label": "Stage and DJ booth upgrade (mixers, monitors, lighting)",
+      "amount": "[KES 1,200,000]",
+      "timing": "Q1 2026"
+    },
+    {
+      "kind": "Programme grant",
+      "label": "Nanyuki to Nairobi DJ exchange (travel, fees, accommodation)",
+      "amount": "[KES 600,000 / year]",
+      "timing": "From 2026"
+    },
+    {
+      "kind": "Capex",
+      "label": "Main stage build, 2,000 capacity under makuti",
+      "amount": "[KES 18,000,000]",
+      "timing": "2028"
+    }
+  ],
+  "partners": [
+    "[Partner: Mt Kenya University, music programme]",
+    "[Partner: Nairobi DJ collective]",
+    "[Partner: Goethe-Institut Nairobi, mobility grant]",
+    "[Partner: Ja Music Council of Kenya]"
+  ],
+  "residents": ["DJ Slick", "DJ 2Face", "DJ Schoolboy"]
+}

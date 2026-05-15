@@ -1,0 +1,15 @@
+{
+  "name": "Festival water bottle",
+  "category": "Water bottle",
+  "tagline": "750ml of survival. Built for the long Saturday.",
+  "description": "Double-walled stainless steel, 750ml, screw-top. Keeps cold for 24 hours, hot for 12. Sand-blasted matte finish with the bonfire mark laser-etched at the base. Refill stations on-site through the night.",
+  "price": "[KES 2,200]",
+  "pillar": "stage",
+  "variants": [
+    { "label": "Finish", "options": ["Matte black", "Matte cream"] }
+  ],
+  "imageCaption": "Festival bottle, matte black, laser-etched bonfire mark",
+  "image": "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=1200&q=80&fit=crop&auto=format",
+  "inStock": true,
+  "featured": true
+}

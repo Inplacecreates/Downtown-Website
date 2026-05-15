@@ -1,0 +1,20 @@
+{
+  "name": "Bonoqqo Studios",
+  "discipline": "Photography · Videography",
+  "tagline": "The people in the room. The nights they made.",
+  "since": "2023",
+  "bio": "Bonoqqo documents Downtown's Saturdays and shoots well beyond it. Commercial portraits by day, club photography after dark. Most of the photographs you see on this site are theirs; many more live in the archive on Instagram.",
+  "captionHint": "Bonoqqo crew on set",
+  "image": "https://images.unsplash.com/photo-1493863641943-9b68992a8d07?w=1600&q=80&fit=crop&auto=format",
+  "offerings": [
+    "Event and editorial coverage",
+    "Portrait and lookbook sessions",
+    "Brand and documentary video",
+    "Archive prints from past nights"
+  ],
+  "contact": {
+    "instagram": "@bonoqqostudios",
+    "email": "shoot@downtown.example",
+    "website": "https://bonoqqo.example"
+  }
+}

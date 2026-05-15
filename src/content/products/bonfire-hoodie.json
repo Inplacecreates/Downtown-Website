@@ -1,0 +1,16 @@
+{
+  "name": "Bonfire hoodie",
+  "category": "Hoodie",
+  "tagline": "The Saturday-night staple. Heavy cotton, bonfire-burn dye.",
+  "description": "350gsm brushed cotton hoodie, printed front and back. Two colourways: ember black and concrete grey. Sized so it fits the way you wear it after midnight, not the way it sits on the rack.",
+  "price": "[KES 4,800]",
+  "pillar": "music",
+  "variants": [
+    { "label": "Size", "options": ["S", "M", "L", "XL", "XXL"] },
+    { "label": "Colour", "options": ["Ember black", "Concrete grey"] }
+  ],
+  "imageCaption": "Bonfire hoodie, ember black, front print",
+  "image": "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=1200&q=80&fit=crop&auto=format",
+  "inStock": true,
+  "featured": true
+}

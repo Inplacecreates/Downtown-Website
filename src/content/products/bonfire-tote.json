@@ -1,0 +1,15 @@
+{
+  "name": "Bonfire tote",
+  "category": "Tote",
+  "tagline": "Heavy canvas, four prints a year.",
+  "description": "16oz natural canvas tote, reinforced base, long-strap. The print changes every quarter: each edition is a collaboration with one of the resident visual artists, signed on the inside seam. Past editions go to the archive.",
+  "price": "[KES 1,400]",
+  "pillar": "art",
+  "variants": [
+    { "label": "Edition", "options": ["Current"] }
+  ],
+  "imageCaption": "Bonfire tote, natural canvas, current edition print",
+  "image": "https://images.unsplash.com/photo-1591561954557-26941169b49e?w=1200&q=80&fit=crop&auto=format",
+  "inStock": true,
+  "featured": false
+}

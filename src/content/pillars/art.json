@@ -1,0 +1,84 @@
+{
+  "order": 2,
+  "name": "Art",
+  "tagline": "Four resident studios. The walls change every quarter.",
+  "cardBody": "Four resident studios show on the big nights, sell from the bar, run workshops on quiet ones. The walls change every quarter.",
+  "problem": "Working visual artists in Nanyuki sell into Nairobi galleries that take 50% and pay slowly, or they sell direct to tourists at curio prices. There is no permanent showing space, no studio infrastructure, and no buyer-development programme inside the town. The result: the talent leaves for Nairobi or stops practising. The audience never sees what is actually being made next door.",
+  "approach": "Downtown hosts four resident studios on-site, rent-free, with one published exhibition per resident per quarter. Sales happen at the bar at gallery margin. A quarterly rotation on the main wall gives every resident a public premiere; the bar is the entry point for buyers who would never set foot in a gallery.",
+  "programmes": [
+    {
+      "name": "Resident studio programme",
+      "description": "Four studios on-site, year-long contracts, rent-free in exchange for one public showing and four open-studio nights per year.",
+      "cadence": "Annual cohort"
+    },
+    {
+      "name": "Quarterly wall rotation",
+      "description": "The main gallery wall changes every twelve weeks. One resident takes the wall, opens with a Friday-night preview, sells from the bar.",
+      "cadence": "Quarterly"
+    },
+    {
+      "name": "Open-studio nights",
+      "description": "Once a quarter, all four studios open to the public. Residents are present, work is for sale, prices are published on the door.",
+      "cadence": "Quarterly"
+    },
+    {
+      "name": "Buyer-development",
+      "description": "A short list of returning collectors gets a preview email before each new wall goes up. First-purchase support for under-thirty-fives in the town.",
+      "cadence": "Ongoing"
+    }
+  ],
+  "outcomes": [
+    {
+      "year": "2026",
+      "target": "Four resident studios occupied. Four wall rotations completed. First open-studio night."
+    },
+    {
+      "year": "2027",
+      "target": "Second gallery space opens. Sales pipeline tracked, residents earn from work shown at Downtown."
+    },
+    {
+      "year": "2028",
+      "target": "Annual group show co-curated with [Partner: Nairobi gallery]. Permanent-collection acquisitions begin."
+    },
+    {
+      "year": "2029",
+      "target": "Festival edition includes a dedicated visual-art week."
+    },
+    {
+      "year": "2030",
+      "target": "Permanent Downtown collection of [N] works on rotating display. International residency hosts two visiting artists."
+    }
+  ],
+  "fundingNeeds": [
+    {
+      "kind": "Capex",
+      "label": "Second gallery space (build-out across courtyard)",
+      "amount": "[KES 3,500,000]",
+      "timing": "2027"
+    },
+    {
+      "kind": "Opex",
+      "label": "Resident studio stipend, four artists",
+      "amount": "[KES 1,920,000 / year]",
+      "timing": "From 2026"
+    },
+    {
+      "kind": "Programme grant",
+      "label": "Quarterly exhibition production (framing, install, opening)",
+      "amount": "[KES 480,000 / year]",
+      "timing": "From 2026"
+    },
+    {
+      "kind": "Programme grant",
+      "label": "Permanent-collection acquisitions fund",
+      "amount": "[KES 1,000,000 / year]",
+      "timing": "From 2028"
+    }
+  ],
+  "partners": [
+    "[Partner: Nairobi gallery for co-curated shows]",
+    "[Partner: British Council Kenya, visual arts grant]",
+    "[Partner: Alliance Francaise Nairobi]"
+  ],
+  "residents": ["McBull Studios", "Bonoqqo Studios", "Saint Arts Studios", "Sir Jay Surtorial"]
+}

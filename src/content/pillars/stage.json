@@ -1,0 +1,91 @@
+{
+  "order": 7,
+  "name": "Stage",
+  "tagline": "Two thousand under the makuti by 2028. An outdoor amphitheatre alongside.",
+  "cardBody": "Stage capacity scales with renovation. Two thousand under the makuti by 2028, with an outdoor amphitheatre alongside.",
+  "problem": "There is no purpose-built, mid-capacity (1,500-2,500) performance venue in central Kenya outside Nairobi. Touring artists who could realistically draw a Nanyuki audience either skip the town entirely or play under-equipped rooms that don't pay back the production cost. The gap costs the local audience the artists, costs the artists the audience, and costs the town the cultural and economic uplift that a real stage delivers.",
+  "approach": "Downtown's stage scales in three steps. The current main room (600 cap) is the rehearsal and residency platform. A 2,000-cap covered main stage under the makuti opens in 2028. An outdoor amphitheatre for sunset programming runs alongside it. From 2028 Downtown is a viable, paid, fully-equipped Kenyan touring stop.",
+  "programmes": [
+    {
+      "name": "Main stage (600 cap, current)",
+      "description": "The existing room. Production-grade lighting and sound. Residency programmes, headliner nights, Saturday flagship.",
+      "cadence": "Year-round"
+    },
+    {
+      "name": "Main stage (2,000 cap, from 2028)",
+      "description": "Covered, makuti-roofed extension. Tour-rated rigging, dressing rooms, green room. Booked headliner programme.",
+      "cadence": "Year-round from 2028"
+    },
+    {
+      "name": "Outdoor amphitheatre",
+      "description": "Stepped seating, open air, sunset acoustic and ensemble programming. Lower-pressure stage for residents and emerging acts.",
+      "cadence": "Dry-season programme"
+    },
+    {
+      "name": "Production team",
+      "description": "Two full-time stage and sound staff plus a freelance pool. Touring-artist liaison and advance handled in-house.",
+      "cadence": "Year-round"
+    }
+  ],
+  "outcomes": [
+    {
+      "year": "2026",
+      "target": "Current main stage production standards documented and published. Touring-rider compatibility tested with three Nairobi acts."
+    },
+    {
+      "year": "2027",
+      "target": "Main stage extension budget approved. Amphitheatre groundwork breaks. Two full-time production staff hired."
+    },
+    {
+      "year": "2028",
+      "target": "2,000-cap main stage operational. First international touring stop hosted. Amphitheatre live."
+    },
+    {
+      "year": "2029",
+      "target": "Festival edition #1 produced across both stages. Sustained touring-stop revenue covers production team."
+    },
+    {
+      "year": "2030",
+      "target": "Downtown listed on the East African touring circuit (Nairobi-Mombasa-Nanyuki-Kampala) as a standard stop."
+    }
+  ],
+  "fundingNeeds": [
+    {
+      "kind": "Capex",
+      "label": "Main stage build, 2,000 cap under makuti (steel, roof, foundations, rigging)",
+      "amount": "[KES 18,000,000]",
+      "timing": "2028"
+    },
+    {
+      "kind": "Capex",
+      "label": "Outdoor amphitheatre (stepped seating, lighting masts, sound infrastructure)",
+      "amount": "[KES 4,200,000]",
+      "timing": "2027-2028"
+    },
+    {
+      "kind": "Capex",
+      "label": "Recording booth fit-out",
+      "amount": "[KES 950,000]",
+      "timing": "2028"
+    },
+    {
+      "kind": "Opex",
+      "label": "Two full-time production staff (stage manager, FOH engineer)",
+      "amount": "[KES 2,400,000 / year]",
+      "timing": "From 2027"
+    },
+    {
+      "kind": "Equipment",
+      "label": "Touring-rider standard PA, lighting rig, microphones",
+      "amount": "[KES 3,800,000]",
+      "timing": "2028"
+    }
+  ],
+  "partners": [
+    "[Partner: Kenya Music Festival]",
+    "[Partner: East African touring booking agency]",
+    "[Partner: Roskilde Festival / international touring partner]",
+    "[Partner: Bank of America Cultural Infrastructure grant or equivalent]"
+  ],
+  "residents": []
+}

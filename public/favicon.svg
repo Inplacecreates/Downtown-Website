@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!--
+    Downtown favicon. The full stacked wordmark does not read at 16-32px
+    (DESIGN.md / CUSTOM_ASSETS.md), so this is a reduced mark: one Ink
+    square (warm near-black) with a single Cream-knockout "D" in a heavy
+    grotesque. Same Ink/Cream colour pair as the full wordmark.
+  -->
+  <rect width="32" height="32" rx="3" fill="#0e0c0a"/>
+  <text
+    x="16"
+    y="22.5"
+    text-anchor="middle"
+    fill="#f5efe3"
+    font-family="'Arial Black', 'Helvetica Neue', sans-serif"
+    font-weight="900"
+    font-size="22"
+    letter-spacing="-1"
+  >D</text>
+</svg>
