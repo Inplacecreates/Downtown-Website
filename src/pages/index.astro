@@ -558,89 +558,88 @@ const pastSaturdays = (await getCollection("pastNights"))
     /*
      * Night scrubber affordances. Three behaviours, all keyed off
      * the same scroll container:
-     *   1. Active ruler segment: which card the user is on. The
-     *      active label is bonfire-coloured; every preceding label
-     *      is marked completed (also bonfire), so the ruler reads
-     *      as a stepped progress bar.
-     *   2. Edge fades: the left fade is hidden until the user
-     *      scrolls right; the right fade is hidden once they reach
-     *      the end. Cheap "more content this way" cue.
-     *   3. Drag-to-scroll: mouse-down inside the scrubber, drag
-     *      left or right, scrollLeft tracks the drag. Touch keeps
-     *      the native scroll because mousedown doesn't fire on
-     *      touch. Snap is disabled while dragging so the scrub is
-     *      smooth, re-engages on release. */
-    const scrubber = document.querySelector<HTMLElement>(".night-scrubber");
-    const cards = document.querySelectorAll<HTMLElement>(".night-card");
-    const links = document.querySelectorAll<HTMLAnchorElement>(".night-link");
-    const fades = document.querySelectorAll<HTMLElement>(".night-edge-fade");
+     *   1. Active ruler segment: which card the user is on.
+     *   2. Edge fades that hide based on scroll position.
+     *   3. Mouse-only click-and-drag scrolling (touch keeps native).
+     *
+     * View-transition aware: Astro's ClientRouter swaps the DOM on
+     * navigation, so listeners bound to old nodes are dead. Setup
+     * runs on every astro:page-load (initial load + navigations).
+     * AbortController scoped to each setup call cleans up listeners
+     * from the previous DOM, including window.resize, so we don't
+     * leak handlers across navigations. The IntersectionObserver
+     * gets disconnected on each call for the same reason. */
+    let scrubberAbort: AbortController | null = null;
+    let scrubberObs: IntersectionObserver | null = null;
 
-    /* 1. Active + completed states on the time ruler.
-       Bug fix: the observer's callback only receives entries that
-       crossed a threshold THIS tick. Picking "most visible" from
-       just those entries means a card that's barely visible but
-       happened to cross a threshold can be elected over a card
-       that's heavily visible but stable. We track every card's
-       last-seen ratio in a Map and re-pick the max from the full
-       map on every callback. */
-    if (cards.length && links.length && "IntersectionObserver" in window) {
-      const setActive = (idx: number) => {
-        links.forEach((l, i) => {
-          const isActive = i === idx;
-          const isCompleted = i < idx;
-          const lit = isActive || isCompleted;
-          l.classList.toggle("text-bonfire", isActive);
-          l.classList.toggle("text-muted-foreground", !isActive);
-          l.classList.toggle("border-bonfire", lit);
-          l.classList.toggle("border-border", !lit);
-          if (isActive) {
-            l.setAttribute("aria-current", "true");
-          } else {
-            l.removeAttribute("aria-current");
-          }
-        });
-      };
+    const setupNightScrubber = () => {
+      /* Clean up the previous page's wireup before touching the
+         new DOM. Safe to call when nothing is set up yet. */
+      scrubberAbort?.abort();
+      scrubberObs?.disconnect();
 
-      const ratios = new Map<Element, number>();
-      cards.forEach((c) => ratios.set(c, 0));
+      const scrubber = document.querySelector<HTMLElement>(".night-scrubber");
+      /* Only the homepage has a scrubber; bail on other pages. */
+      if (!scrubber) return;
 
-      let lastActive = -1;
-      const obs = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((e) => {
-            ratios.set(e.target, e.isIntersecting ? e.intersectionRatio : 0);
-          });
-          let topRatio = -1;
-          let mostVisible: Element | null = null;
-          ratios.forEach((ratio, el) => {
-            if (ratio > topRatio) {
-              topRatio = ratio;
-              mostVisible = el;
+      scrubberAbort = new AbortController();
+      const { signal } = scrubberAbort;
+
+      const cards = document.querySelectorAll<HTMLElement>(".night-card");
+      const links = document.querySelectorAll<HTMLAnchorElement>(".night-link");
+      const fades = document.querySelectorAll<HTMLElement>(".night-edge-fade");
+
+      if (cards.length && links.length && "IntersectionObserver" in window) {
+        const setActive = (idx: number) => {
+          links.forEach((l, i) => {
+            const isActive = i === idx;
+            const isCompleted = i < idx;
+            const lit = isActive || isCompleted;
+            l.classList.toggle("text-bonfire", isActive);
+            l.classList.toggle("text-muted-foreground", !isActive);
+            l.classList.toggle("border-bonfire", lit);
+            l.classList.toggle("border-border", !lit);
+            if (isActive) {
+              l.setAttribute("aria-current", "true");
+            } else {
+              l.removeAttribute("aria-current");
             }
           });
-          if (mostVisible) {
-            const idx = Array.from(cards).indexOf(mostVisible as HTMLElement);
-            if (idx >= 0 && idx !== lastActive) {
-              lastActive = idx;
-              setActive(idx);
-            }
-          }
-        },
-        {
-          root: scrubber,
-          /* Granular thresholds so the callback fires often enough
-             to keep the active state honest as the user scrubs. */
-          threshold: [0, 0.1, 0.25, 0.5, 0.75, 0.9, 1],
-        },
-      );
-      cards.forEach((c) => obs.observe(c));
-    }
+        };
 
-    /* 2 & 3. Edge fades + drag-to-scroll. Both live on the
-       scrubber, so guard once. */
-    if (scrubber) {
-      /* Edge fades. Recompute on scroll and resize; toggle
-         opacity rather than display so the transition runs. */
+        const ratios = new Map<Element, number>();
+        cards.forEach((c) => ratios.set(c, 0));
+
+        let lastActive = -1;
+        scrubberObs = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((e) => {
+              ratios.set(e.target, e.isIntersecting ? e.intersectionRatio : 0);
+            });
+            let topRatio = -1;
+            let mostVisible: Element | null = null;
+            ratios.forEach((ratio, el) => {
+              if (ratio > topRatio) {
+                topRatio = ratio;
+                mostVisible = el;
+              }
+            });
+            if (mostVisible) {
+              const idx = Array.from(cards).indexOf(mostVisible as HTMLElement);
+              if (idx >= 0 && idx !== lastActive) {
+                lastActive = idx;
+                setActive(idx);
+              }
+            }
+          },
+          {
+            root: scrubber,
+            threshold: [0, 0.1, 0.25, 0.5, 0.75, 0.9, 1],
+          },
+        );
+        cards.forEach((c) => scrubberObs!.observe(c));
+      }
+
       const updateFades = () => {
         const max = scrubber.scrollWidth - scrubber.clientWidth;
         const left = scrubber.scrollLeft;
@@ -651,29 +650,34 @@ const pastSaturdays = (await getCollection("pastNights"))
           f.style.opacity = showLeft || showRight ? "1" : "0";
         });
       };
-      scrubber.addEventListener("scroll", updateFades, { passive: true });
-      window.addEventListener("resize", updateFades);
+      scrubber.addEventListener("scroll", updateFades, { passive: true, signal });
+      window.addEventListener("resize", updateFades, { signal });
       updateFades();
 
-      /* Drag-to-scroll. Mouse only; touch keeps native scroll.
-         pointerType filter on the Pointer Events API is the
-         clean way to do this. */
       let isDragging = false;
       let startX = 0;
       let startScroll = 0;
-      scrubber.addEventListener("pointerdown", (e) => {
-        if (e.pointerType !== "mouse") return;
-        isDragging = true;
-        startX = e.pageX;
-        startScroll = scrubber.scrollLeft;
-        scrubber.classList.add("is-dragging");
-        scrubber.setPointerCapture(e.pointerId);
-      });
-      scrubber.addEventListener("pointermove", (e) => {
-        if (!isDragging) return;
-        e.preventDefault();
-        scrubber.scrollLeft = startScroll - (e.pageX - startX);
-      });
+      scrubber.addEventListener(
+        "pointerdown",
+        (e) => {
+          if (e.pointerType !== "mouse") return;
+          isDragging = true;
+          startX = e.pageX;
+          startScroll = scrubber.scrollLeft;
+          scrubber.classList.add("is-dragging");
+          scrubber.setPointerCapture(e.pointerId);
+        },
+        { signal },
+      );
+      scrubber.addEventListener(
+        "pointermove",
+        (e) => {
+          if (!isDragging) return;
+          e.preventDefault();
+          scrubber.scrollLeft = startScroll - (e.pageX - startX);
+        },
+        { signal },
+      );
       const endDrag = (e: PointerEvent) => {
         if (!isDragging) return;
         isDragging = false;
@@ -684,9 +688,11 @@ const pastSaturdays = (await getCollection("pastNights"))
           /* releasePointerCapture throws if capture already released */
         }
       };
-      scrubber.addEventListener("pointerup", endDrag);
-      scrubber.addEventListener("pointercancel", endDrag);
-    }
+      scrubber.addEventListener("pointerup", endDrag, { signal });
+      scrubber.addEventListener("pointercancel", endDrag, { signal });
+    };
+
+    document.addEventListener("astro:page-load", setupNightScrubber);
   </script>
 
   <!-- Programme -->

@@ -136,7 +136,7 @@ const shopActive = path.startsWith("/shop");
    */}
   <div
     id="mobile-nav"
-    class="mobile-nav fixed inset-0 z-50 hidden flex-col bg-ink text-cream sm:!hidden"
+    class="mobile-nav dark fixed inset-0 z-50 hidden flex-col bg-ink text-cream sm:!hidden"
     aria-hidden="true"
   >
     <div class="flex items-center justify-between px-6 py-6">
@@ -229,12 +229,30 @@ const shopActive = path.startsWith("/shop");
    * link all close it. Locks body scroll while open so the page
    * underneath doesn't move. Restores focus to the hamburger on
    * close so keyboard users land back where they were.
-   */
-  const trigger = document.getElementById("mobile-nav-trigger");
-  const drawer = document.getElementById("mobile-nav");
-  const closeBtn = document.getElementById("mobile-nav-close");
+   *
+   * View-transition aware: Astro's ClientRouter swaps the DOM on
+   * navigation instead of full-reloading, so any listeners bound
+   * to the previous page's nodes are dead. The setup function
+   * runs on every astro:page-load event (fires on initial load
+   * AND after every navigation), so the hamburger keeps working
+   * across pages. Listeners attached to scoped (new) DOM nodes
+   * are garbage-collected with the old DOM, so re-wiring doesn't
+   * leak. One persistent keydown listener on the document handles
+   * Esc; it reads the drawer afresh each time it fires so the
+   * post-navigation drawer is always the one closed. */
+  const ESC_LISTENER_KEY = "__mobileNavEsc";
 
-  if (trigger && drawer && closeBtn) {
+  const setupMobileNav = () => {
+    /* Always clear any lingering scroll lock — a navigation that
+       happened while the drawer was open would otherwise leave
+       overflow:hidden stuck on the new page. */
+    document.documentElement.style.overflow = "";
+
+    const trigger = document.getElementById("mobile-nav-trigger");
+    const drawer = document.getElementById("mobile-nav");
+    const closeBtn = document.getElementById("mobile-nav-close");
+    if (!trigger || !drawer || !closeBtn) return;
+
     const links = drawer.querySelectorAll<HTMLAnchorElement>(
       "a[data-mobile-nav-link]",
     );
@@ -245,8 +263,6 @@ const shopActive = path.startsWith("/shop");
       drawer.setAttribute("aria-hidden", "false");
       trigger.setAttribute("aria-expanded", "true");
       document.documentElement.style.overflow = "hidden";
-      /* Focus the close button so screen readers and keyboards
-         land somewhere intentional. */
       requestAnimationFrame(() => closeBtn.focus());
     };
 
@@ -262,10 +278,26 @@ const shopActive = path.startsWith("/shop");
     trigger.addEventListener("click", open);
     closeBtn.addEventListener("click", close);
     links.forEach((link) => link.addEventListener("click", close));
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && !drawer.classList.contains("hidden")) {
-        close();
-      }
-    });
-  }
+
+    /* Esc listener attached once at module scope; we mark it on
+       the window so a second navigation doesn't double-attach. */
+    if (!(window as any)[ESC_LISTENER_KEY]) {
+      document.addEventListener("keydown", (e) => {
+        if (e.key !== "Escape") return;
+        const d = document.getElementById("mobile-nav");
+        if (d && !d.classList.contains("hidden")) {
+          const t = document.getElementById("mobile-nav-trigger");
+          d.classList.add("hidden");
+          d.classList.remove("flex");
+          d.setAttribute("aria-hidden", "true");
+          t?.setAttribute("aria-expanded", "false");
+          document.documentElement.style.overflow = "";
+          t?.focus();
+        }
+      });
+      (window as any)[ESC_LISTENER_KEY] = true;
+    }
+  };
+
+  document.addEventListener("astro:page-load", setupMobileNav);
 </script>
