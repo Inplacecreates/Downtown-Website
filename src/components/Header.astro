@@ -5,13 +5,18 @@ import Wordmark from "./Wordmark.astro";
  * Header with the SVG wordmark. The wordmark inherits text colour via
  * currentColor, so the bars match whichever polarity the section is in.
  *
+ * Two navigation modes:
+ *   1. Desktop (sm+): inline text links + filled Shop button on the right.
+ *   2. Mobile (<sm): hamburger button opens a full-screen overlay with
+ *      the same links rendered as big tap-targets. The Shop button
+ *      stays inline on mobile too because it's the primary CTA.
+ *
  * Active-state highlighting: the current pathname is compared against
- * each nav entry's prefix so /pillars/* keeps Vision highlighted and
- * /shop highlights Shop. Shop is styled as a filled bonfire button
- * (rather than a plain link) so it pulls the eye, and on hover the
- * label morphs from "Shop" to "Support" with a shutter transition.
- * The "Support" framing turns merch into a community-funding action;
- * the morph happens in pure CSS via stacked spans + transform.
+ * each nav entry's prefix so /pillars/* keeps Vision highlighted, etc.
+ *
+ * Shop is styled as a filled bonfire button (not a plain link) so it
+ * pulls the eye; on hover the label morphs from "Shop" to "Support"
+ * via a shutter transition that frames the merch as community funding.
  */
 const path = Astro.url.pathname;
 const textLinks = [
@@ -44,7 +49,7 @@ const shopActive = path.startsWith("/shop");
       <Wordmark />
     </a>
 
-    <nav class="flex items-center gap-4 md:gap-7">
+    <nav class="flex items-center gap-3 md:gap-7">
       {
         textLinks.map((item) => {
           const isActive = item.match(path);
@@ -74,10 +79,6 @@ const shopActive = path.startsWith("/shop");
             : "border-bonfire bg-bonfire text-ink hover:bg-ink hover:text-bonfire",
         ]}
       >
-        {/* Shutter morph: an invisible "Support" span gives the
-            container its width so the label longest-word doesn't
-            jump. Two absolute spans (Shop default, Support hover)
-            slide vertically on hover. */}
         <span class="relative inline-block overflow-hidden">
           <span aria-hidden="true" class="invisible block">Support</span>
           <span class="absolute inset-0 text-center transition-transform duration-300 ease-out group-hover:-translate-y-full group-focus-visible:-translate-y-full">
@@ -94,6 +95,177 @@ const shopActive = path.startsWith("/shop");
           →
         </span>
       </a>
+
+      {/*
+       * Mobile hamburger trigger. Visible only below sm. The drawer
+       * markup further down opens via the inline script; ARIA wiring
+       * (aria-expanded, aria-controls) gets updated there.
+       */}
+      <button
+        id="mobile-nav-trigger"
+        type="button"
+        class="inline-flex h-11 w-11 items-center justify-center text-foreground transition-colors hover:text-bonfire sm:hidden"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="mobile-nav"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+          class="h-6 w-6"
+        >
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+    </nav>
+  </div>
+
+  {/*
+   * Mobile nav overlay. Hidden by default; the trigger above adds the
+   * `is-open` class, which the CSS below resolves into a visible
+   * full-screen takeover. Lives outside the header's flex row so it
+   * can cover the viewport without affecting layout. Restricted to
+   * mobile via sm:hidden — desktop never sees this markup rendered.
+   */}
+  <div
+    id="mobile-nav"
+    class="mobile-nav fixed inset-0 z-50 hidden flex-col bg-ink text-cream sm:!hidden"
+    aria-hidden="true"
+  >
+    <div class="flex items-center justify-between px-6 py-6">
+      <a
+        href="/"
+        class="block w-[88px] text-cream transition-opacity hover:opacity-90"
+        data-mobile-nav-link
+      >
+        <Wordmark />
+      </a>
+      <button
+        id="mobile-nav-close"
+        type="button"
+        class="inline-flex h-11 w-11 items-center justify-center text-cream transition-colors hover:text-bonfire"
+        aria-label="Close menu"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+          class="h-7 w-7"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <nav class="flex flex-1 flex-col justify-center gap-2 px-6 pb-12">
+      <a
+        href="/#whats-on"
+        data-mobile-nav-link
+        aria-current={path === "/" ? "page" : undefined}
+        class:list={[
+          "block border-t border-cream/15 py-5 font-display text-4xl font-black uppercase tracking-tight transition-colors hover:text-bonfire",
+          path === "/" && "text-bonfire",
+        ]}
+      >
+        What's on.
+      </a>
+      <a
+        href="/community"
+        data-mobile-nav-link
+        aria-current={path.startsWith("/community") || path.startsWith("/residents") || path.startsWith("/djs") ? "page" : undefined}
+        class:list={[
+          "block border-t border-cream/15 py-5 font-display text-4xl font-black uppercase tracking-tight transition-colors hover:text-bonfire",
+          (path.startsWith("/community") || path.startsWith("/residents") || path.startsWith("/djs")) && "text-bonfire",
+        ]}
+      >
+        Community.
+      </a>
+      <a
+        href="/vision"
+        data-mobile-nav-link
+        aria-current={path.startsWith("/vision") || path.startsWith("/pillars") ? "page" : undefined}
+        class:list={[
+          "block border-t border-cream/15 py-5 font-display text-4xl font-black uppercase tracking-tight transition-colors hover:text-bonfire",
+          (path.startsWith("/vision") || path.startsWith("/pillars")) && "text-bonfire",
+        ]}
+      >
+        Vision.
+      </a>
+      <a
+        href="/shop"
+        data-mobile-nav-link
+        aria-current={shopActive ? "page" : undefined}
+        class:list={[
+          "block border-y border-cream/15 py-5 font-display text-4xl font-black uppercase tracking-tight transition-colors hover:text-bonfire",
+          shopActive && "text-bonfire",
+        ]}
+      >
+        Shop.
+      </a>
+
+      <p class="mt-10 max-w-prose font-mono text-xs uppercase tracking-wider text-cream/60">
+        Downtown · Nanyuki. Six nights a week. Bonfire from nine.
+      </p>
     </nav>
   </div>
 </header>
+
+<script>
+  /*
+   * Mobile nav overlay toggle. Wires the hamburger to open the
+   * full-screen drawer; close button, Esc key, and tapping any nav
+   * link all close it. Locks body scroll while open so the page
+   * underneath doesn't move. Restores focus to the hamburger on
+   * close so keyboard users land back where they were.
+   */
+  const trigger = document.getElementById("mobile-nav-trigger");
+  const drawer = document.getElementById("mobile-nav");
+  const closeBtn = document.getElementById("mobile-nav-close");
+
+  if (trigger && drawer && closeBtn) {
+    const links = drawer.querySelectorAll<HTMLAnchorElement>(
+      "a[data-mobile-nav-link]",
+    );
+
+    const open = () => {
+      drawer.classList.remove("hidden");
+      drawer.classList.add("flex");
+      drawer.setAttribute("aria-hidden", "false");
+      trigger.setAttribute("aria-expanded", "true");
+      document.documentElement.style.overflow = "hidden";
+      /* Focus the close button so screen readers and keyboards
+         land somewhere intentional. */
+      requestAnimationFrame(() => closeBtn.focus());
+    };
+
+    const close = () => {
+      drawer.classList.add("hidden");
+      drawer.classList.remove("flex");
+      drawer.setAttribute("aria-hidden", "true");
+      trigger.setAttribute("aria-expanded", "false");
+      document.documentElement.style.overflow = "";
+      trigger.focus();
+    };
+
+    trigger.addEventListener("click", open);
+    closeBtn.addEventListener("click", close);
+    links.forEach((link) => link.addEventListener("click", close));
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !drawer.classList.contains("hidden")) {
+        close();
+      }
+    });
+  }
+</script>
